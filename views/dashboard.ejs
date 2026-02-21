@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    .card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 48px 36px;
+      width: 100%;
+      max-width: 480px;
+      box-shadow: 0 20px 60px rgba(0,0,0,.15);
+      text-align: center;
+    }
+    .avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      font-weight: 700;
+      margin: 0 auto 20px;
+      overflow: hidden;
+    }
+    .avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    h1 {
+      font-size: 26px;
+      color: #333;
+      margin-bottom: 6px;
+    }
+    .email {
+      color: #888;
+      font-size: 14px;
+      margin-bottom: 30px;
+    }
+    .info-box {
+      background: #f7f8fc;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 28px;
+      text-align: left;
+    }
+    .info-box h3 {
+      font-size: 14px;
+      color: #999;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+    }
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid #eee;
+      font-size: 14px;
+    }
+    .info-row:last-child { border-bottom: none; }
+    .info-row span:first-child { color: #666; }
+    .info-row span:last-child { color: #333; font-weight: 600; }
+    .btn-logout {
+      display: inline-block;
+      padding: 12px 36px;
+      background: #f44336;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: transform .15s, box-shadow .15s;
+    }
+    .btn-logout:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 14px rgba(244,67,54,.3);
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="avatar">
+      <% if (user.avatar) { %>
+        <img src="<%= user.avatar %>" alt="avatar" />
+      <% } else { %>
+        <%= user.name.charAt(0).toUpperCase() %>
+      <% } %>
+    </div>
+
+    <h1>Hello, <%= user.name %>!</h1>
+    <p class="email"><%= user.email %></p>
+
+    <div class="info-box">
+      <h3>Account Details</h3>
+      <div class="info-row">
+        <span>Name</span>
+        <span><%= user.name %></span>
+      </div>
+      <div class="info-row">
+        <span>Email</span>
+        <span><%= user.email %></span>
+      </div>
+      <div class="info-row">
+        <span>Login Method</span>
+        <span><%= user.googleId ? 'Google' : 'Email & Password' %></span>
+      </div>
+      <div class="info-row">
+        <span>Joined</span>
+        <span><%= new Date(user.createdAt).toLocaleDateString() %></span>
+      </div>
+    </div>
+
+    <a href="/logout" class="btn-logout">Sign Out</a>
+  </div>
+</body>
+</html>
