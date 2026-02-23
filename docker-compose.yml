@@ -30,38 +30,6 @@
 #     GOOGLE_CALLBACK_URL: http://localhost:3001/auth/google/callback
       
 
-# volumes:
-#   mongo-data:
-# version: "3.8"
-
-# services:
-#   mongo:
-#     image: mongo:7
-#     container_name: loginpagedemo-mongo
-#     restart: unless-stopped
-#     ports:
-#       - "27018:27017"
-#     volumes:
-#       - mongo-data:/data/db
-
-#   app:
-#     build: .
-#     container_name: loginpagedemo-app
-#     restart: unless-stopped
-#     ports:
-#       - "3001:3000"
-#     depends_on:
-#       - mongo
-#     environment:
-#       NODE_ENV: docker
-#       PORT: 3000
-#       SESSION_SECRET: change-me-in-production
-#       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
-#       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
-#       GOOGLE_CALLBACK_URL: http://localhost:3001/auth/google/callback
-
-# volumes:
-#   mongo-data:
 
 
 services:
