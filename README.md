@@ -148,3 +148,4 @@ loginpage/
 ## License
 
 ISC
+added .env.docker and .env.local 
