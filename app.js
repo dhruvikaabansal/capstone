@@ -112,27 +112,6 @@
 // app.use(flash());
 
 // // ──── Routes ────
-// app.use('/', authRoutes);
-
-// // ──── Health check (Docker / Jenkins) ────
-// app.get('/health', (req, res) => {
-//   res.status(200).json({ status: 'ok' });
-// });
-
-// // ──── Connect MongoDB & start server ────
-// mongoose.connect(MONGO_URI)
-//   .then(() => {
-//     console.log(`MongoDB connected (${isDocker ? 'Docker' : 'Local'})`);
-//     app.listen(PORT, () => {
-//       console.log(`Server running on http://localhost:${PORT}`);
-//     });
-//   })
-//   .catch(err => {
-//     console.error('MongoDB connection error:', err.message);
-//     process.exit(1);
-//   });
-
-// module.exports = app;
 
 
 
