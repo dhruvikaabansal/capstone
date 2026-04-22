@@ -347,38 +347,44 @@ body {
   
   <!-- TAB CONTENT: OVERVIEW -->
   <div id="tab-overview" class="tab-content active-content">
+    
+    <!-- Actionable Header Alert -->
+    <div style="background: #e2e3e5; border-left: 4px solid #003366; padding: 16px; margin-bottom: 24px; border-radius: 4px;">
+      <strong>Commander's Briefing:</strong> The intelligence system has identified <strong>598</strong> high-risk sectors requiring increased patrol presence. Peak activity is projected between 20:00 and 02:00.
+    </div>
+
     <div class="grid">
       <!-- LEFT COLUMN: STATS -->
       <div>
         <div class="stats-grid">
-          <div class="card" style="grid-column: span 2; border-left: 4px solid #dc3545;">
-            <h3>Total Indexed Crimes</h3>
+          <div class="card" style="grid-column: span 2; border-left: 4px solid #0d6efd;">
+            <h3>Historical Database</h3>
             <div class="value">123,561</div>
-            <div class="label">Historical records loaded</div>
+            <div class="label">Total verified incidents analyzed</div>
           </div>
 
-          <div class="card" style="grid-column: span 2; border-left: 4px solid #0d6efd;">
-            <h3>Grid Sectors</h3>
-            <div class="value">2,388</div>
-            <div class="label">~500m area blocks</div>
+          <div class="card" style="grid-column: span 2; border-left: 4px solid #dc3545;">
+            <h3>Active Hotspot Zones</h3>
+            <div class="value">598</div>
+            <div class="label">Sectors requiring immediate patrol</div>
           </div>
 
           <div class="card" style="border-left: 4px solid #fd7e14;">
-            <h3>Hotspot Sectors</h3>
-            <div class="value">598</div>
-            <div class="label">Elevated risk zones</div>
+            <h3>City Threat Level</h3>
+            <div class="value" style="font-size: 22px;">ELEVATED</div>
+            <div class="label">Based on predictive volume</div>
           </div>
 
           <div class="card" style="border-left: 4px solid #198754;">
-            <h3>Classifier Accuracy</h3>
-            <div class="value">0.99</div>
-            <div class="label">ROC-AUC Score</div>
+            <h3>Peak Activity Shift</h3>
+            <div class="value" style="font-size: 22px;">20:00-02:00</div>
+            <div class="label">Maximum deployment recommended</div>
           </div>
 
           <div class="card" style="grid-column: span 2; border-left: 4px solid #6f42c1;">
-            <h3>Count Reliability</h3>
-            <div class="value">0.93</div>
-            <div class="label">R² Regression Score</div>
+            <h3>Primary Offense Trend</h3>
+            <div class="value" style="font-size: 22px;">Theft & Battery</div>
+            <div class="label">Most frequent crimes in hotspots</div>
           </div>
         </div>
       </div>
@@ -387,8 +393,8 @@ body {
       <div>
         <div class="map-container">
           <div class="section-header">
-            <h3>Geospatial Event Distribution</h3>
-            <p>Red indicates dense crime clustering</p>
+            <h3>Live Density Snapshot</h3>
+            <p>Red indicates immediate intervention areas</p>
           </div>
           <div class="map-placeholder">
             <canvas id="mapChart"></canvas>
@@ -400,12 +406,21 @@ body {
     <!-- BOTTOM: EDA OVERVIEW -->
     <div class="eda-container">
       <div class="section-header">
-        <h3>Temporal Analysis</h3>
+        <h3>Strategic Deployment Data (Temporal Trends)</h3>
       </div>
       <div class="charts-row">
-        <div><canvas id="chart1"></canvas></div>
-        <div><canvas id="chart2"></canvas></div>
-        <div><canvas id="chart3"></canvas></div>
+        <div>
+          <h4 style="font-size: 13px; color: #495057; margin-bottom: 8px; text-align: center;">Incident Frequency by Shift</h4>
+          <canvas id="chart1"></canvas>
+        </div>
+        <div>
+          <h4 style="font-size: 13px; color: #495057; margin-bottom: 8px; text-align: center;">Weekly Patrol Demand</h4>
+          <canvas id="chart2"></canvas>
+        </div>
+        <div>
+          <h4 style="font-size: 13px; color: #495057; margin-bottom: 8px; text-align: center;">Multi-Year Volume Trends</h4>
+          <canvas id="chart3"></canvas>
+        </div>
       </div>
     </div>
   </div>
