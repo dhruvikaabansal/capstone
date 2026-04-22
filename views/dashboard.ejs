@@ -3,237 +3,413 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>CrimeIntel | Command Dashboard</title>
-
+<title>Chicago Crime Intelligence | Smart Policing</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
-  height: 100vh;
-  font-family: "Inter", "Segoe UI", sans-serif;
-  background:
-    radial-gradient(circle at 30% 20%, rgba(255,0,0,0.15), transparent 40%),
-    linear-gradient(#050608, #050608);
-  color: #eaeaea;
+  background: #0b0c10;
+  color: #c5c6c7;
+  font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  padding-bottom: 50px;
+}
+
+/* TOP HEADER */
+.header {
+  padding: 24px 32px 0 32px;
+  border-bottom: 1px solid #1f2833;
+}
+
+.title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 24px;
+}
+
+.title-main h1 {
+  font-size: 20px;
+  letter-spacing: 2px;
+  color: #fff;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.title-main h2 {
+  font-size: 13px;
+  color: #8892b0;
+  letter-spacing: 1.5px;
+  font-weight: 500;
+}
+
+.status-badge {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-family: monospace;
+  font-size: 13px;
+}
+
+.status-badge .records {
+  color: #8892b0;
+}
+
+.badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(76, 175, 80, 0.1);
+  color: #4caf50;
+  padding: 6px 12px;
+  border-radius: 20px;
+  border: 1px solid rgba(76, 175, 80, 0.3);
+}
+
+.badge::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  background: #4caf50;
+  border-radius: 50%;
+  box-shadow: 0 0 8px #4caf50;
+}
+
+.tabs {
+  display: flex;
+  gap: 32px;
+}
+
+.tab {
+  padding: 12px 0;
+  color: #8892b0;
+  font-size: 13px;
+  letter-spacing: 1.5px;
+  font-weight: 600;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+}
+
+.tab.active {
+  color: #66fcf1;
+  border-bottom: 2px solid #66fcf1;
+}
+
+/* MAIN LAYOUT */
+.container {
+  padding: 32px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 350px 1fr;
+  gap: 32px;
+}
+
+/* CARDS */
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.card {
+  background: #11141a;
+  border: 1px solid #1f2833;
+  border-radius: 8px;
+  padding: 20px;
+  position: relative;
   overflow: hidden;
 }
 
-/* GRID */
-body::before {
+.card::before {
   content: "";
-  position: fixed;
-  inset: 0;
-  background:
-    linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
-  background-size: 40px 40px;
-  pointer-events: none;
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
 }
 
-/* TOP BAR */
-.topbar {
-  height: 64px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 32px;
-  border-bottom: 1px solid rgba(255,255,255,0.08);
+.card-red::before { background: #f44336; }
+.card-blue::before { background: #2196f3; }
+.card-orange::before { background: #ff9800; }
+.card-green::before { background: #4caf50; }
+.card-purple::before { background: #9c27b0; }
+
+.card h3 {
+  font-size: 11px;
+  color: #8892b0;
+  letter-spacing: 1.5px;
+  margin-bottom: 16px;
+  text-transform: uppercase;
 }
 
-.logo {
-  font-size: 22px;
+.card .value {
+  font-size: 32px;
   font-weight: 800;
-  letter-spacing: 2px;
+  margin-bottom: 4px;
 }
-.logo span { color: #e53935; }
 
-.agent {
+.card .label {
+  font-size: 12px;
+  color: #8892b0;
+}
+
+/* Map area */
+.map-container {
+  background: #11141a;
+  border: 1px solid #1f2833;
+  border-radius: 8px;
+  padding: 24px;
+}
+
+.section-header {
   display: flex;
   align-items: center;
-  gap: 12px;
-  font-size: 14px;
+  gap: 16px;
+  margin-bottom: 24px;
 }
 
-/* AVATAR */
-.avatar {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: #e53935;
+.section-header h3 {
+  font-size: 13px;
+  letter-spacing: 2px;
+  color: #8892b0;
+}
+
+.section-header p {
+  font-size: 13px;
+  color: #c5c6c7;
+  font-family: monospace;
+}
+
+.map-placeholder {
+  width: 100%;
+  height: 400px;
+  background: #0b0c10;
+  border: 1px solid #1f2833;
+  border-radius: 4px;
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 700;
   overflow: hidden;
 }
-.avatar img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+
+/* Chart.js styling tweaks inside canvas */
+.eda-container {
+  background: #11141a;
+  border: 1px solid #1f2833;
+  border-radius: 8px;
+  padding: 24px;
+  margin-top: 32px;
 }
 
-/* MAIN */
-.main {
+.charts-row {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
   gap: 24px;
-  padding: 32px;
-  height: calc(100vh - 64px);
+  height: 200px;
 }
 
-/* PANELS */
-.panel {
-  background: rgba(15,17,22,0.95);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 12px;
-  padding: 24px;
-  box-shadow: 0 0 40px rgba(229,57,53,.12);
-}
-
-.panel h3 {
-  font-size: 14px;
-  letter-spacing: 2px;
-  margin-bottom: 18px;
-  color: #aaa;
-}
-
-/* INFO ROWS */
-.row {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 12px;
-  font-size: 14px;
-}
-.row span:last-child {
-  color: #fff;
-  font-weight: 600;
-}
-
-/* STATUS */
-.status {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 13px;
-  color: #9f9f9f;
-}
-.status::before {
-  content: "";
-  width: 10px;
-  height: 10px;
-  background: #e53935;
-  border-radius: 50%;
-  animation: pulse 1.5s infinite;
-}
-
-@keyframes pulse {
-  0% { box-shadow: 0 0 0 0 rgba(229,57,53,.7); }
-  70% { box-shadow: 0 0 0 12px rgba(229,57,53,0); }
-  100% { box-shadow: 0 0 0 0 rgba(229,57,53,0); }
-}
-
-/* FAKE DATA */
-.metric {
-  font-size: 34px;
-  font-weight: 800;
-  color: #e53935;
-}
-.small {
-  font-size: 13px;
-  color: #aaa;
-}
-
-/* LOG */
-.log {
-  font-size: 13px;
-  color: #bbb;
-  line-height: 1.6;
-}
-
-/* LOGOUT */
-.logout {
-  position: absolute;
+/* Logout button */
+.logout-btn {
+  position: fixed;
   bottom: 24px;
   right: 32px;
-  padding: 10px 22px;
-  background: transparent;
-  border: 1px solid #e53935;
-  color: #e53935;
-  border-radius: 6px;
+  background: #11141a;
+  border: 1px solid #f44336;
+  color: #f44336;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 12px;
+  letter-spacing: 1px;
   cursor: pointer;
+  text-decoration: none;
+  transition: all 0.2s;
 }
-.logout:hover {
-  background: #e53935;
+
+.logout-btn:hover {
+  background: #f44336;
   color: #fff;
 }
 </style>
 </head>
-
 <body>
 
-<!-- TOP BAR -->
-<div class="topbar">
-  <div class="logo">CRIME<span>INTEL</span></div>
-
-  <div class="agent">
-    <div class="avatar">
-      <% if (user.avatar) { %>
-        <img src="<%= user.avatar %>" />
-      <% } else { %>
-        <%= user.name.charAt(0).toUpperCase() %>
-      <% } %>
+<div class="header">
+  <div class="title-row">
+    <div class="title-main">
+      <h1>CHICAGO CRIME INTELLIGENCE</h1>
+      <h2>SMART POLICING SYSTEM · v1.0</h2>
     </div>
+    <div class="status-badge">
+      <span class="records">123,561 RECORDS ANALYSED</span>
+      <div class="badge">MODEL ACTIVE</div>
+      <div style="color: #fff; margin-left: 20px;">Agent: <%= user.name %></div>
+    </div>
+  </div>
+  <div class="tabs">
+    <div class="tab active">OVERVIEW</div>
+    <div class="tab">CRIME MAP</div>
+    <div class="tab">MODEL PERFORMANCE</div>
+    <div class="tab">LOG PREDICTIONS</div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="grid">
+    
+    <!-- LEFT COLUMN: STATS -->
     <div>
-      <div><%= user.name %></div>
-      <small><%= user.email %></small>
+      <div class="stats-grid">
+        <div class="card card-red" style="grid-column: span 2;">
+          <h3>TOTAL CRIMES</h3>
+          <div class="value" style="color: #f44336;">0.12M</div>
+          <div class="label">Records analysed</div>
+        </div>
+
+        <div class="card card-blue" style="grid-column: span 2;">
+          <h3>GRID CELLS</h3>
+          <div class="value" style="color: #2196f3;">2,388</div>
+          <div class="label">~500m each</div>
+        </div>
+
+        <div class="card card-orange">
+          <h3>HOTSPOT CELLS</h3>
+          <div class="value" style="color: #ff9800;">598</div>
+          <div class="label">Top 25% risk zones</div>
+        </div>
+
+        <div class="card card-green">
+          <h3>ROC-AUC</h3>
+          <div class="value" style="color: #4caf50;">0.9902</div>
+          <div class="label">Classifier score</div>
+        </div>
+
+        <div class="card card-purple" style="grid-column: span 2;">
+          <h3>R² SCORE</h3>
+          <div class="value" style="color: #9c27b0;">0.9324</div>
+          <div class="label">Regressor score</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT COLUMN: MAP -->
+    <div>
+      <div class="map-container">
+        <div class="section-header">
+          <h3>CRIME DENSITY MAP</h3>
+          <p>Red = hotspot zones</p>
+        </div>
+        <div class="map-placeholder">
+          <!-- A simple canvas for Chart.js scatter plot mimicking a map -->
+          <canvas id="mapChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOTTOM: EDA OVERVIEW -->
+  <div class="eda-container">
+    <div class="section-header">
+      <h3>EDA OVERVIEW</h3>
+    </div>
+    <div class="charts-row">
+      <div><canvas id="chart1"></canvas></div>
+      <div><canvas id="chart2"></canvas></div>
+      <div><canvas id="chart3"></canvas></div>
     </div>
   </div>
 </div>
 
-<!-- MAIN -->
-<div class="main">
+<a href="/logout" class="logout-btn">LOG OUT</a>
 
-  <!-- AGENT PANEL -->
-  <div class="panel">
-    <h3>AGENT PROFILE</h3>
-    <div class="row"><span>Name</span><span><%= user.name %></span></div>
-    <div class="row"><span>Email</span><span><%= user.email %></span></div>
-    <div class="row">
-      <span>Auth Method</span>
-      <span><%= user.googleId ? "Google Secure Auth" : "Local Credentials" %></span>
-    </div>
-    <div class="row">
-      <span>Joined</span>
-      <span><%= new Date(user.createdAt).toLocaleDateString() %></span>
-    </div>
-    <div class="status">ACTIVE CLEARANCE · MONITORED</div>
-  </div>
+<script>
+// Chart Defaults
+Chart.defaults.color = '#8892b0';
+Chart.defaults.font.family = 'Inter';
+Chart.defaults.scale.grid.color = 'rgba(255,255,255,0.05)';
 
-  <!-- HOTSPOT PANEL -->
-  <div class="panel">
-    <h3>CRIME HOTSPOTS</h3>
-    <div class="metric">23</div>
-    <div class="small">Active high-risk zones detected</div>
-    <br>
-    <div class="metric">+14%</div>
-    <div class="small">Spike in urban incidents (last 24h)</div>
-  </div>
+// Generate Fake Map Data for Scatter Plot
+const mapData = [];
+for(let i=0; i<800; i++) {
+  // Random coordinates resembling a map shape
+  const lat = 41.65 + Math.random() * 0.4;
+  const lng = -87.90 + Math.random() * 0.35;
+  // Center is denser (hotspots)
+  const dist = Math.sqrt(Math.pow(lat - 41.85, 2) + Math.pow(lng - -87.65, 2));
+  if(Math.random() > dist * 3) {
+    mapData.push({ x: lng, y: lat, v: Math.random() });
+  }
+}
 
-  <!-- SYSTEM LOG -->
-  <div class="panel">
-    <h3>SYSTEM LOG</h3>
-    <div class="log">
-      ▸ Spark analytics pipeline online<br>
-      ▸ CV model scanning CCTV feeds<br>
-      ▸ Heatmap generation running<br>
-      ▸ Predictive policing model synced<br>
-      ▸ All actions logged & audited
-    </div>
-  </div>
+new Chart(document.getElementById('mapChart'), {
+  type: 'scatter',
+  data: {
+    datasets: [{
+      data: mapData,
+      backgroundColor: (ctx) => {
+        const v = ctx.raw ? ctx.raw.v : 0;
+        return v > 0.8 ? '#f44336' : (v > 0.5 ? '#ff9800' : '#2196f3');
+      },
+      pointRadius: 2
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { display: false }, tooltip: { enabled: false } },
+    scales: {
+      x: { title: { display: true, text: 'Longitude' } },
+      y: { title: { display: true, text: 'Latitude' } }
+    }
+  }
+});
 
-</div>
+// Chart 1: Crimes by Hour
+new Chart(document.getElementById('chart1'), {
+  type: 'bar',
+  data: {
+    labels: Array.from({length: 24}, (_, i) => i),
+    datasets: [{
+      label: 'Crimes by Hour',
+      data: [15,12,10,8,7,6,8,12,18,22,25,28,30,32,31,34,35,33,29,25,22,20,18,16],
+      backgroundColor: '#2196f3'
+    }]
+  },
+  options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+});
 
-<a href="/logout"><button class="logout">LOG OUT</button></a>
+// Chart 2: Crimes by Day
+new Chart(document.getElementById('chart2'), {
+  type: 'bar',
+  data: {
+    labels: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
+    datasets: [{
+      label: 'Crimes by Day',
+      data: [120, 125, 122, 130, 150, 160, 140],
+      backgroundColor: '#4caf50'
+    }]
+  },
+  options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+});
+
+// Chart 3: Crimes by Year
+new Chart(document.getElementById('chart3'), {
+  type: 'line',
+  data: {
+    labels: ['2019','2020','2021','2022','2023'],
+    datasets: [{
+      label: 'Crimes by Year',
+      data: [350000, 280000, 290000, 295000, 285000],
+      borderColor: '#f44336',
+      tension: 0.4
+    }]
+  },
+  options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+});
+</script>
 
 </body>
 </html>
