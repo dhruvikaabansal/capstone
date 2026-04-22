@@ -1,5 +1,10 @@
 pipeline {
     agent any
+     environment {
+        GOOGLE_CLIENT_ID = credentials('google-client-id')
+        GOOGLE_CLIENT_SECRET = credentials('google-client-secret')
+    }
+
 
     stages {
 
