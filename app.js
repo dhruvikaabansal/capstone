@@ -149,16 +149,24 @@ app.get('/health', (req, res) => {
 });
 
 // ==============================
-// MongoDB Connect + Start Server
+// Start Server Immediately
+// ==============================
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on http://localhost:${PORT}`);
+});
+
+// ==============================
+// MongoDB Connect (Background)
 // ==============================
 const connectWithRetry = () => {
+  if (!process.env.MONGODB_URI) {
+    console.warn('⚠️ MONGODB_URI is missing. Database features will be unavailable.');
+    return;
+  }
   mongoose
     .connect(process.env.MONGODB_URI)
     .then(() => {
       console.log('✅ MongoDB connected');
-      app.listen(PORT, () => {
-        console.log(`🚀 Server running on http://localhost:${PORT}`);
-      });
     })
     .catch((err) => {
       console.error('❌ MongoDB error, retrying in 5 seconds...', err.message);
