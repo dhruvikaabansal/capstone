@@ -1,11 +1,8 @@
-# Chicago Police Intelligence Portal
+# Login / Signup Page
 
-[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/template/new?repo=https://github.com/dhruvikaabansal/capstone)
-
-A professional, high-performance Smart Policing Dashboard with **Node.js**, **Python (OR-Tools/XGBoost)**, **MongoDB**, **Google OAuth**, **Docker**, and **Jenkins CI/CD**.
+A simple, clean login & signup application with **MongoDB**, **Google OAuth**, **Docker**, and **Jenkins CI/CD**.
 
 ![Node.js](https://img.shields.io/badge/Node.js-18+-green)
-![Python](https://img.shields.io/badge/Python-3.11-blue)
 ![MongoDB](https://img.shields.io/badge/MongoDB-7-brightgreen)
 ![Docker](https://img.shields.io/badge/Docker-Ready-blue)
 
