@@ -6,13 +6,18 @@ const User = require('../models/User');
 // ==============================
 // 🟣 REGISTER
 // ==============================
-router.post('/register', async (req, res) => {
+router.post('/signup', async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
     let user = await User.findOne({ email: email.toLowerCase() });
     if (user) {
-      return res.send('User already exists');
+      return res.render('signup', { error: 'User already exists' });
+    }
+
+    // TODO: Confirm passwords match (if not checked in frontend)
+    if (req.body.password !== req.body.confirmPassword) {
+      return res.render('signup', { error: 'Passwords do not match' });
     }
 
     user = new User({
@@ -26,7 +31,7 @@ router.post('/register', async (req, res) => {
     res.redirect('/login');
   } catch (err) {
     console.error(err);
-    res.send('Error registering user');
+    res.render('signup', { error: 'Error registering user' });
   }
 });
 

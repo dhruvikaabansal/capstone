@@ -69,10 +69,20 @@ app.use(flash());
 app.use('/', authRoutes);
 
 // ==============================
-// Homepage
+// Public Routes
 // ==============================
 app.get('/', (req, res) => {
-  res.render('index', { user: req.user });
+  res.redirect('/login');
+});
+
+app.get('/login', (req, res) => {
+  if (req.user) return res.redirect('/dashboard');
+  res.render('login', { error: req.flash('error') });
+});
+
+app.get('/signup', (req, res) => {
+  if (req.user) return res.redirect('/dashboard');
+  res.render('signup', { error: req.flash('error') });
 });
 
 // ==============================
@@ -132,17 +142,21 @@ app.get('/health', (req, res) => {
 // ==============================
 // MongoDB Connect + Start Server
 // ==============================
-mongoose
-  .connect(process.env.MONGODB_URI)
-  .then(() => {
-    console.log('✅ MongoDB connected');
-    app.listen(PORT, () => {
-      console.log(`🚀 Server running on http://localhost:${PORT}`);
+const connectWithRetry = () => {
+  mongoose
+    .connect(process.env.MONGODB_URI)
+    .then(() => {
+      console.log('✅ MongoDB connected');
+      app.listen(PORT, () => {
+        console.log(`🚀 Server running on http://localhost:${PORT}`);
+      });
+    })
+    .catch((err) => {
+      console.error('❌ MongoDB error, retrying in 5 seconds...', err.message);
+      setTimeout(connectWithRetry, 5000);
     });
-  })
-  .catch((err) => {
-    console.error('❌ MongoDB error:', err.message);
-    process.exit(1);
-  });
+};
+
+connectWithRetry();
 
 module.exports = app;
