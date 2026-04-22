@@ -44,7 +44,7 @@ app.use(
       collectionName: 'sessions',
     }),
     cookie: {
-      maxAge: 1000 * 60 * 60 * 24,
+      maxAge: 1000 * 60 * 60 * 24, // 1 day
     },
   })
 );
@@ -66,15 +66,22 @@ app.use(flash());
 app.use('/', authRoutes);
 
 // ==============================
-// Protected Route (Dashboard)
+// Homepage (Landing Page)
 // ==============================
-app.get('/dashboard', (req, res) => {
-  if (!req.user) return res.redirect('/login');
-  res.send(`Welcome ${req.user.name}`);
+app.get('/', (req, res) => {
+  res.render('index', { user: req.user });
 });
 
 // ==============================
-// Health Check
+// Protected Dashboard
+// ==============================
+app.get('/dashboard', (req, res) => {
+  if (!req.user) return res.redirect('/login');
+  res.render('dashboard', { user: req.user });
+});
+
+// ==============================
+// Health Check (Jenkins)
 // ==============================
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'ok' });
