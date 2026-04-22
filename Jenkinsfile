@@ -19,9 +19,8 @@ pipeline {
         }
         stage('Health Check') {
             steps {
-                bat 'ping 127.0.0.1 -n 11 > nul'
-                bat 'curl -f http://localhost:3001/health || exit 1'
-                bat 'curl -f http://localhost:8000/health || exit 1'
+                bat 'curl --retry 12 --retry-delay 5 --retry-all-errors -f http://localhost:3001/health || exit 1'
+                bat 'curl --retry 12 --retry-delay 5 --retry-all-errors -f http://localhost:8000/health || exit 1'
             }
         }
     }
