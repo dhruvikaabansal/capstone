@@ -143,6 +143,7 @@ services:
       - PORT=3000
       - MONGODB_URI=mongodb://mongo:27017/capstone
       - SESSION_SECRET=supersecret
-
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
 volumes:
   mongo-data:

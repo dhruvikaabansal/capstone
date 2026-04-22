@@ -44,7 +44,7 @@ app.use(
       collectionName: 'sessions',
     }),
     cookie: {
-      maxAge: 1000 * 60 * 60 * 24, // 1 day
+      maxAge: 1000 * 60 * 60 * 24,
     },
   })
 );
@@ -66,7 +66,15 @@ app.use(flash());
 app.use('/', authRoutes);
 
 // ==============================
-// Health Check (VERY IMPORTANT)
+// Protected Route (Dashboard)
+// ==============================
+app.get('/dashboard', (req, res) => {
+  if (!req.user) return res.redirect('/login');
+  res.send(`Welcome ${req.user.name}`);
+});
+
+// ==============================
+// Health Check
 // ==============================
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'ok' });

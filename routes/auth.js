@@ -3,91 +3,73 @@ const router = express.Router();
 const passport = require('passport');
 const User = require('../models/User');
 
-// ──── Middleware ────
-function ensureGuest(req, res, next) {
-  if (req.isAuthenticated()) return res.redirect('/dashboard');
-  next();
-}
-
-function ensureAuth(req, res, next) {
-  if (req.isAuthenticated()) return next();
-  res.redirect('/login');
-}
-
-// ──── Pages ────
-router.get('/', (req, res) => res.redirect('/login'));
-
-router.get('/login', ensureGuest, (req, res) => {
-  res.render('login', { error: req.flash('error') });
-});
-
-router.get('/signup', ensureGuest, (req, res) => {
-  res.render('signup', { error: req.flash('error') });
-});
-
-router.get('/dashboard', ensureAuth, (req, res) => {
-  res.render('dashboard', { user: req.user });
-});
-
-// ──── Local Auth ────
-router.post('/login', ensureGuest, passport.authenticate('local', {
-  successRedirect: '/dashboard',
-  failureRedirect: '/login',
-  failureFlash: true
-}));
-
-router.post('/signup', ensureGuest, async (req, res) => {
+// ==============================
+// 🟣 REGISTER
+// ==============================
+router.post('/register', async (req, res) => {
   try {
-    const { name, email, password, confirmPassword } = req.body;
+    const { name, email, password } = req.body;
 
-    if (!name || !email || !password) {
-      req.flash('error', 'Please fill in all fields.');
-      return res.redirect('/signup');
-    }
-    if (password.length < 6) {
-      req.flash('error', 'Password must be at least 6 characters.');
-      return res.redirect('/signup');
-    }
-    if (password !== confirmPassword) {
-      req.flash('error', 'Passwords do not match.');
-      return res.redirect('/signup');
+    let user = await User.findOne({ email: email.toLowerCase() });
+    if (user) {
+      return res.send('User already exists');
     }
 
-    const existing = await User.findOne({ email: email.toLowerCase() });
-    if (existing) {
-      req.flash('error', 'Email already registered.');
-      return res.redirect('/signup');
-    }
+    user = new User({
+      name,
+      email: email.toLowerCase(),
+      password
+    });
 
-    await User.create({ name, email, password });
-    req.flash('error', 'Account created! Please log in.');
+    await user.save();
+
     res.redirect('/login');
   } catch (err) {
     console.error(err);
-    req.flash('error', 'Something went wrong.');
-    res.redirect('/signup');
+    res.send('Error registering user');
   }
 });
 
-// ──── Google Auth ────
-router.get('/auth/google',
-  passport.authenticate('google', { scope: ['profile', 'email'] })
-);
-
-router.get('/auth/google/callback',
-  passport.authenticate('google', {
+// ==============================
+// 🟣 LOGIN (LOCAL)
+// ==============================
+router.post('/login',
+  passport.authenticate('local', {
     successRedirect: '/dashboard',
     failureRedirect: '/login',
     failureFlash: true
   })
 );
 
-// ──── Logout ────
+// ==============================
+// 🟣 LOGOUT
+// ==============================
 router.get('/logout', (req, res, next) => {
-  req.logout(err => {
+  req.logout(function(err) {
     if (err) return next(err);
-    res.redirect('/login');
+    res.redirect('/');
   });
 });
+
+// ==============================
+// 🔵 GOOGLE AUTH
+// ==============================
+
+// Step 1: Redirect to Google
+router.get('/auth/google',
+  passport.authenticate('google', {
+    scope: ['profile', 'email']
+  })
+);
+
+// Step 2: Google callback
+router.get('/auth/google/callback',
+  passport.authenticate('google', {
+    failureRedirect: '/login',
+  }),
+  (req, res) => {
+    res.redirect('/dashboard');
+  }
+);
 
 module.exports = router;
