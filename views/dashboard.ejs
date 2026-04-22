@@ -409,17 +409,23 @@ body {
         <h3>Strategic Deployment Data (Temporal Trends)</h3>
       </div>
       <div class="charts-row">
-        <div>
+        <div style="display: flex; flex-direction: column; height: 100%;">
           <h4 style="font-size: 13px; color: #495057; margin-bottom: 8px; text-align: center;">Incident Frequency by Shift</h4>
-          <canvas id="chart1"></canvas>
+          <div style="position: relative; flex: 1; min-height: 0;">
+            <canvas id="chart1"></canvas>
+          </div>
         </div>
-        <div>
+        <div style="display: flex; flex-direction: column; height: 100%;">
           <h4 style="font-size: 13px; color: #495057; margin-bottom: 8px; text-align: center;">Weekly Patrol Demand</h4>
-          <canvas id="chart2"></canvas>
+          <div style="position: relative; flex: 1; min-height: 0;">
+            <canvas id="chart2"></canvas>
+          </div>
         </div>
-        <div>
+        <div style="display: flex; flex-direction: column; height: 100%;">
           <h4 style="font-size: 13px; color: #495057; margin-bottom: 8px; text-align: center;">Multi-Year Volume Trends</h4>
-          <canvas id="chart3"></canvas>
+          <div style="position: relative; flex: 1; min-height: 0;">
+            <canvas id="chart3"></canvas>
+          </div>
         </div>
       </div>
     </div>
