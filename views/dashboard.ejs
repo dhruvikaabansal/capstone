@@ -338,6 +338,7 @@ body {
   <div class="tabs">
     <div class="tab active" data-target="tab-overview">Dashboard Overview</div>
     <div class="tab" data-target="tab-crimemap">Geospatial Intelligence</div>
+    <div class="tab" data-target="tab-routing">Patrol Optimizer</div>
     <div class="tab" data-target="tab-performance">System Diagnostics</div>
     <div class="tab" data-target="tab-predictions">Risk Assessor</div>
   </div>
@@ -485,6 +486,37 @@ body {
       <button id="predict-btn" class="btn-primary">EVALUATE SECTOR RISK</button>
 
       <div id="predict-result" style="margin-top: 24px; font-weight: bold; font-size: 15px; padding: 16px; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px; display: none;"></div>
+    </div>
+  </div>
+
+  <!-- TAB CONTENT: ROUTING -->
+  <div id="tab-routing" class="tab-content">
+    <div class="grid">
+      <div>
+        <div class="card" style="border-left: 4px solid #fd7e14; height: 100%;">
+          <h3>Patrol Route Optimizer</h3>
+          <p style="color: #6c757d; font-size: 13px; margin-bottom: 16px; line-height: 1.5;">
+            Uses Google OR-Tools to solve the Traveling Salesperson Problem (TSP) across active hotspots. Generates the most efficient patrol sequence to minimize response time.
+          </p>
+          <button id="optimize-btn" class="btn-primary" style="margin-bottom: 20px;">GENERATE OPTIMAL ROUTE</button>
+          
+          <div id="route-list" style="max-height: 350px; overflow-y: auto; font-size: 13px;">
+            <!-- Waypoints will populate here -->
+            <div style="color: #adb5bd; font-style: italic;">Awaiting route generation...</div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="map-container" style="height: 500px;">
+          <div class="section-header">
+            <h3>Optimized Patrol Path</h3>
+            <p>Visualizing the calculated TSP route</p>
+          </div>
+          <div class="map-placeholder" style="height: 400px;">
+            <canvas id="routingChart"></canvas>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -645,6 +677,107 @@ new Chart(document.getElementById('chart3'), {
   },
   options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
 });
+
+// --- ROUTING LOGIC ---
+let routingChartInstance = null;
+
+document.getElementById('optimize-btn').addEventListener('click', () => {
+  const btn = document.getElementById('optimize-btn');
+  const listEl = document.getElementById('route-list');
+  
+  btn.innerText = 'CALCULATING TSP...';
+  btn.disabled = true;
+  listEl.innerHTML = '<div style="color: #6c757d; font-style: italic;">Computing distance matrix and solving OR-Tools TSP...</div>';
+
+  // Generate 10 random "hotspot" coordinates in Chicago area
+  const points = [];
+  for(let i=0; i<10; i++) {
+    points.push({
+      lat: 41.7 + Math.random() * 0.2,
+      lon: -87.8 + Math.random() * 0.2
+    });
+  }
+
+  fetch('/model/optimize-route', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ points })
+  })
+  .then(res => res.json())
+  .then(data => {
+    btn.innerText = 'GENERATE OPTIMAL ROUTE';
+    btn.disabled = false;
+    
+    if(data.error) {
+      listEl.innerHTML = `<div style="color: #dc3545;">Optimizer Error: ${data.error}</div>`;
+      return;
+    }
+
+    const route = data.route;
+    
+    // 1. Build List
+    let html = '';
+    route.forEach((pt, index) => {
+      html += `
+        <div style="padding: 12px; border-bottom: 1px solid #dee2e6; display: flex; align-items: center; gap: 12px;">
+          <div style="background: #0056b3; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">${index + 1}</div>
+          <div>
+            <div style="font-weight: bold; color: #212529;">Waypoint ${index + 1}</div>
+            <div style="color: #6c757d;">Lat: ${pt.lat.toFixed(4)}, Lon: ${pt.lon.toFixed(4)}</div>
+          </div>
+        </div>
+      `;
+    });
+    listEl.innerHTML = html;
+
+    // 2. Plot Chart
+    const plotData = route.map(pt => ({ x: pt.lon, y: pt.lat }));
+    
+    if(routingChartInstance) {
+      routingChartInstance.destroy();
+    }
+    
+    routingChartInstance = new Chart(document.getElementById('routingChart'), {
+      type: 'scatter',
+      data: {
+        datasets: [{
+          label: 'Optimal Route',
+          data: plotData,
+          borderColor: '#dc3545',
+          backgroundColor: '#dc3545',
+          borderWidth: 2,
+          pointRadius: 6,
+          pointHoverRadius: 8,
+          showLine: true, // Connect the dots!
+          fill: false
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { 
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: (ctx) => `Stop ${ctx.dataIndex + 1}: ${ctx.raw.y.toFixed(4)}, ${ctx.raw.x.toFixed(4)}`
+            }
+          }
+        },
+        scales: {
+          x: { title: { display: true, text: 'Longitude' } },
+          y: { title: { display: true, text: 'Latitude' } }
+        }
+      }
+    });
+    
+  })
+  .catch(err => {
+    btn.innerText = 'GENERATE OPTIMAL ROUTE';
+    btn.disabled = false;
+    listEl.innerHTML = `<div style="color: #dc3545;">Failed to connect to Optimizer Service.</div>`;
+  });
+});
+
 </script>
 
 </body>

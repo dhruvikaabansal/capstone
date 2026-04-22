@@ -127,6 +127,15 @@ app.get('/model/stats', async (req, res) => {
     }
 });
 
+app.post('/model/optimize-route', async (req, res) => {
+    try {
+        const response = await axios.post(`${MODEL_API_URL}/optimize-route`, req.body);
+        res.json(response.data);
+    } catch (err) {
+        res.status(500).json({ error: 'Optimizer API unavailable' });
+    }
+});
+
 app.get('/crime-dashboard', (req, res) => {
     if (!req.user) return res.redirect('/login');
     res.sendFile(__dirname + '/dashboard/chicago_crime_dashboard.html');
