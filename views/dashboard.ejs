@@ -412,7 +412,15 @@ body {
 
   <!-- TAB CONTENT: CRIME MAP -->
   <div id="tab-crimemap" class="tab-content">
-    <div class="map-container" style="padding: 0; overflow: hidden; height: 75vh;">
+    <div class="card" style="margin-bottom: 24px; border-left: 4px solid #0056b3;">
+      <h3 style="color: #212529; font-size: 16px;">Geospatial Intelligence Map</h3>
+      <p style="color: #6c757d; font-size: 14px; margin-top: 8px; line-height: 1.5;">
+        This interactive map visualizes historical incident density across the city grid. 
+        <strong>Red zones</strong> indicate historically high-volume incident areas (hotspots) where crime rates exceed typical sector thresholds. 
+        Use this historical density data in conjunction with the Risk Assessor tool to proactively allocate patrol resources and plan strategic interventions.
+      </p>
+    </div>
+    <div class="map-container" style="padding: 0; overflow: hidden; height: 70vh; border: 1px solid #dee2e6; border-radius: 6px;">
       <iframe src="/crime-dashboard" width="100%" height="100%" style="border: none;"></iframe>
     </div>
   </div>
