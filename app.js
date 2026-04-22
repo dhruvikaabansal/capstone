@@ -129,7 +129,7 @@ app.get('/model/stats', async (req, res) => {
 
 app.get('/crime-dashboard', (req, res) => {
     if (!req.user) return res.redirect('/login');
-    res.sendFile(__dirname + '/dashboard/index.html');
+    res.sendFile(__dirname + '/dashboard/chicago_crime_dashboard.html');
 });
 
 // ==============================

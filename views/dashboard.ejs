@@ -3,106 +3,107 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Chicago Crime Intelligence | Smart Policing</title>
+<title>Chicago Police Department | Intelligence Portal</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
-  background: #0b0c10;
-  color: #c5c6c7;
-  font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: #f4f6f9;
+  color: #333333;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
   padding-bottom: 50px;
 }
 
 /* TOP HEADER */
 .header {
-  padding: 24px 32px 0 32px;
-  border-bottom: 1px solid #1f2833;
+  background: #003366; /* Standard Police Blue */
+  padding: 20px 32px 0 32px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  color: #ffffff;
 }
 
 .title-row {
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
   flex-wrap: wrap;
   gap: 16px;
 }
 
 .title-main h1 {
-  font-size: 20px;
-  letter-spacing: 2px;
-  color: #fff;
-  text-transform: uppercase;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 1px;
   margin-bottom: 4px;
 }
 
 .title-main h2 {
-  font-size: 13px;
-  color: #8892b0;
-  letter-spacing: 1.5px;
-  font-weight: 500;
+  font-size: 14px;
+  color: #a0c4ff;
+  font-weight: 400;
 }
 
 .status-badge {
   display: flex;
   align-items: center;
   gap: 16px;
-  font-family: monospace;
-  font-size: 13px;
+  font-size: 14px;
   flex-wrap: wrap;
 }
 
 .status-badge .records {
-  color: #8892b0;
+  color: #a0c4ff;
 }
 
 .badge {
   display: flex;
   align-items: center;
   gap: 8px;
-  background: rgba(76, 175, 80, 0.1);
-  color: #4caf50;
-  padding: 6px 12px;
-  border-radius: 20px;
-  border: 1px solid rgba(76, 175, 80, 0.3);
+  background: #28a745;
+  color: #ffffff;
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-weight: bold;
+  font-size: 12px;
 }
 
 .badge::before {
   content: "";
   width: 8px;
   height: 8px;
-  background: #4caf50;
+  background: #ffffff;
   border-radius: 50%;
-  box-shadow: 0 0 8px #4caf50;
 }
 
 .tabs {
   display: flex;
-  gap: 32px;
+  gap: 24px;
   overflow-x: auto;
   white-space: nowrap;
 }
 
 .tab {
-  padding: 12px 0;
-  color: #8892b0;
-  font-size: 13px;
-  letter-spacing: 1.5px;
+  padding: 12px 16px;
+  color: #a0c4ff;
+  font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  border-bottom: 2px solid transparent;
+  border-bottom: 4px solid transparent;
   transition: all 0.2s;
+  text-transform: uppercase;
 }
 
 .tab:hover {
-  color: #fff;
+  color: #ffffff;
 }
 
 .tab.active {
-  color: #66fcf1;
-  border-bottom: 2px solid #66fcf1;
+  color: #ffffff;
+  border-bottom: 4px solid #ffffff;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px 4px 0 0;
 }
 
 /* MAIN LAYOUT */
@@ -129,7 +130,7 @@ body {
 .grid {
   display: grid;
   grid-template-columns: 350px 1fr;
-  gap: 32px;
+  gap: 24px;
 }
 
 /* CARDS */
@@ -140,80 +141,70 @@ body {
 }
 
 .card {
-  background: #11141a;
-  border: 1px solid #1f2833;
-  border-radius: 8px;
+  background: #ffffff;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
   padding: 20px;
-  position: relative;
-  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
 }
-
-.card::before {
-  content: "";
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 3px;
-}
-
-.card-red::before { background: #f44336; }
-.card-blue::before { background: #2196f3; }
-.card-orange::before { background: #ff9800; }
-.card-green::before { background: #4caf50; }
-.card-purple::before { background: #9c27b0; }
 
 .card h3 {
-  font-size: 11px;
-  color: #8892b0;
-  letter-spacing: 1.5px;
-  margin-bottom: 16px;
+  font-size: 12px;
+  color: #6c757d;
+  font-weight: 700;
+  margin-bottom: 8px;
   text-transform: uppercase;
 }
 
 .card .value {
-  font-size: 32px;
-  font-weight: 800;
+  font-size: 28px;
+  font-weight: 700;
+  color: #212529;
   margin-bottom: 4px;
 }
 
 .card .label {
-  font-size: 12px;
-  color: #8892b0;
+  font-size: 13px;
+  color: #6c757d;
 }
 
 /* Map area */
 .map-container {
-  background: #11141a;
-  border: 1px solid #1f2833;
-  border-radius: 8px;
+  background: #ffffff;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
   padding: 24px;
   height: 100%;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
 }
 
 .section-header {
   display: flex;
   align-items: center;
   gap: 16px;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e9ecef;
 }
 
 .section-header h3 {
-  font-size: 13px;
-  letter-spacing: 2px;
-  color: #8892b0;
-  text-transform: uppercase;
+  font-size: 16px;
+  color: #212529;
+  font-weight: 700;
+  margin: 0;
 }
 
 .section-header p {
   font-size: 13px;
-  color: #c5c6c7;
-  font-family: monospace;
+  color: #6c757d;
+  margin: 0;
 }
 
 .map-placeholder {
   width: 100%;
   height: 400px;
-  background: #0b0c10;
-  border: 1px solid #1f2833;
+  background: #f8f9fa;
+  border: 1px solid #dee2e6;
   border-radius: 4px;
   position: relative;
   display: flex;
@@ -224,18 +215,19 @@ body {
 
 /* Chart.js styling tweaks inside canvas */
 .eda-container {
-  background: #11141a;
-  border: 1px solid #1f2833;
-  border-radius: 8px;
+  background: #ffffff;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
   padding: 24px;
-  margin-top: 32px;
+  margin-top: 24px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
 }
 
 .charts-row {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
   gap: 24px;
-  height: 200px;
+  height: 250px;
 }
 
 /* Logout button */
@@ -243,22 +235,56 @@ body {
   position: fixed;
   bottom: 24px;
   right: 32px;
-  background: #11141a;
-  border: 1px solid #f44336;
-  color: #f44336;
+  background: #ffffff;
+  border: 1px solid #dc3545;
+  color: #dc3545;
   padding: 8px 16px;
   border-radius: 4px;
-  font-size: 12px;
-  letter-spacing: 1px;
+  font-size: 13px;
+  font-weight: bold;
   cursor: pointer;
   text-decoration: none;
   transition: all 0.2s;
   z-index: 100;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .logout-btn:hover {
-  background: #f44336;
-  color: #fff;
+  background: #dc3545;
+  color: #ffffff;
+}
+
+/* Form Styles */
+.form-group {
+  margin-bottom: 16px;
+}
+.form-group label {
+  display: block;
+  margin-bottom: 6px;
+  color: #495057;
+  font-weight: bold;
+  font-size: 13px;
+}
+.form-group input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  font-size: 14px;
+}
+.btn-primary {
+  background: #0056b3;
+  color: #ffffff;
+  border: none;
+  padding: 12px 24px;
+  font-weight: bold;
+  border-radius: 4px;
+  cursor: pointer;
+  width: 100%;
+  transition: background 0.2s;
+}
+.btn-primary:hover {
+  background: #004494;
 }
 
 /* RESPONSIVE DESIGN */
@@ -271,7 +297,7 @@ body {
     height: auto;
   }
   .charts-row > div {
-    height: 200px;
+    height: 250px;
   }
   .map-placeholder {
     height: 300px;
@@ -300,20 +326,20 @@ body {
 <div class="header">
   <div class="title-row">
     <div class="title-main">
-      <h1>CHICAGO CRIME INTELLIGENCE</h1>
-      <h2>SMART POLICING SYSTEM · v1.0</h2>
+      <h1>CHICAGO POLICE DEPARTMENT</h1>
+      <h2>Crime Intelligence System · v1.0</h2>
     </div>
     <div class="status-badge">
-      <span class="records">123,561 RECORDS ANALYSED</span>
-      <div class="badge">MODEL ACTIVE</div>
-      <div style="color: #fff;">Agent: <%= user.name %></div>
+      <span class="records">123,561 Records Indexed</span>
+      <div class="badge">SYSTEM ONLINE</div>
+      <div style="font-weight: 600;">Officer: <%= user.name %></div>
     </div>
   </div>
   <div class="tabs">
-    <div class="tab active" data-target="tab-overview">OVERVIEW</div>
-    <div class="tab" data-target="tab-crimemap">CRIME MAP</div>
-    <div class="tab" data-target="tab-performance">MODEL PERFORMANCE</div>
-    <div class="tab" data-target="tab-predictions">LOG PREDICTIONS</div>
+    <div class="tab active" data-target="tab-overview">Dashboard Overview</div>
+    <div class="tab" data-target="tab-crimemap">Geospatial Intelligence</div>
+    <div class="tab" data-target="tab-performance">System Diagnostics</div>
+    <div class="tab" data-target="tab-predictions">Risk Assessor</div>
   </div>
 </div>
 
@@ -325,34 +351,34 @@ body {
       <!-- LEFT COLUMN: STATS -->
       <div>
         <div class="stats-grid">
-          <div class="card card-red" style="grid-column: span 2;">
-            <h3>TOTAL CRIMES</h3>
-            <div class="value" style="color: #f44336;">0.12M</div>
-            <div class="label">Records analysed</div>
+          <div class="card" style="grid-column: span 2; border-left: 4px solid #dc3545;">
+            <h3>Total Indexed Crimes</h3>
+            <div class="value">123,561</div>
+            <div class="label">Historical records loaded</div>
           </div>
 
-          <div class="card card-blue" style="grid-column: span 2;">
-            <h3>GRID CELLS</h3>
-            <div class="value" style="color: #2196f3;">2,388</div>
-            <div class="label">~500m each</div>
+          <div class="card" style="grid-column: span 2; border-left: 4px solid #0d6efd;">
+            <h3>Grid Sectors</h3>
+            <div class="value">2,388</div>
+            <div class="label">~500m area blocks</div>
           </div>
 
-          <div class="card card-orange">
-            <h3>HOTSPOT CELLS</h3>
-            <div class="value" style="color: #ff9800;">598</div>
-            <div class="label">Top 25% risk zones</div>
+          <div class="card" style="border-left: 4px solid #fd7e14;">
+            <h3>Hotspot Sectors</h3>
+            <div class="value">598</div>
+            <div class="label">Elevated risk zones</div>
           </div>
 
-          <div class="card card-green">
-            <h3>ROC-AUC</h3>
-            <div class="value" style="color: #4caf50;">0.9902</div>
-            <div class="label">Classifier score</div>
+          <div class="card" style="border-left: 4px solid #198754;">
+            <h3>Classifier Accuracy</h3>
+            <div class="value">0.99</div>
+            <div class="label">ROC-AUC Score</div>
           </div>
 
-          <div class="card card-purple" style="grid-column: span 2;">
-            <h3>R² SCORE</h3>
-            <div class="value" style="color: #9c27b0;">0.9324</div>
-            <div class="label">Regressor score</div>
+          <div class="card" style="grid-column: span 2; border-left: 4px solid #6f42c1;">
+            <h3>Count Reliability</h3>
+            <div class="value">0.93</div>
+            <div class="label">R² Regression Score</div>
           </div>
         </div>
       </div>
@@ -361,8 +387,8 @@ body {
       <div>
         <div class="map-container">
           <div class="section-header">
-            <h3>CRIME DENSITY SCATTER</h3>
-            <p>Red = hotspot zones</p>
+            <h3>Geospatial Event Distribution</h3>
+            <p>Red indicates dense crime clustering</p>
           </div>
           <div class="map-placeholder">
             <canvas id="mapChart"></canvas>
@@ -374,7 +400,7 @@ body {
     <!-- BOTTOM: EDA OVERVIEW -->
     <div class="eda-container">
       <div class="section-header">
-        <h3>EDA OVERVIEW</h3>
+        <h3>Temporal Analysis</h3>
       </div>
       <div class="charts-row">
         <div><canvas id="chart1"></canvas></div>
@@ -387,51 +413,55 @@ body {
   <!-- TAB CONTENT: CRIME MAP -->
   <div id="tab-crimemap" class="tab-content">
     <div class="map-container" style="padding: 0; overflow: hidden; height: 75vh;">
-      <iframe src="/crime-dashboard" width="100%" height="100%" style="border: none; border-radius: 8px;"></iframe>
+      <iframe src="/crime-dashboard" width="100%" height="100%" style="border: none;"></iframe>
     </div>
   </div>
 
-  <!-- TAB CONTENT: MODEL PERFORMANCE -->
+  <!-- TAB CONTENT: SYSTEM DIAGNOSTICS -->
   <div id="tab-performance" class="tab-content">
-    <div class="card card-blue" style="margin-bottom: 24px;">
-      <h3>Model Health API</h3>
-      <div class="value" id="model-health" style="font-size: 18px; color: #fff;">Checking...</div>
+    <div class="card" style="margin-bottom: 24px; border-left: 4px solid #0dcaf0;">
+      <h3>Predictive Engine Status</h3>
+      <div class="value" id="model-health" style="font-size: 20px;">Connecting to Endpoint...</div>
     </div>
     <div class="grid">
-      <div class="card card-green">
-        <h3>Classifier (ROC-AUC)</h3>
-        <div class="value" style="color: #4caf50;">0.9902</div>
-        <div class="label">XGBoost Classification</div>
+      <div class="card" style="border-left: 4px solid #198754;">
+        <h3>Classification Model (ROC-AUC)</h3>
+        <div class="value">0.9902</div>
+        <div class="label">Identifies high-risk hotspot probability (XGBoost)</div>
       </div>
-      <div class="card card-purple">
-        <h3>Regressor (R² Score)</h3>
-        <div class="value" style="color: #9c27b0;">0.9324</div>
-        <div class="label">XGBoost Regression</div>
+      <div class="card" style="border-left: 4px solid #6f42c1;">
+        <h3>Regression Model (R² Score)</h3>
+        <div class="value">0.9324</div>
+        <div class="label">Estimates exact incident counts (XGBoost)</div>
       </div>
     </div>
   </div>
 
   <!-- TAB CONTENT: LOG PREDICTIONS -->
   <div id="tab-predictions" class="tab-content">
-    <div class="card card-orange" style="max-width: 600px; margin: 0 auto;">
-      <h3>Log New Prediction</h3>
-      <div style="margin-top: 16px;">
-        <label style="display:block; margin-bottom: 8px; color: #8892b0; font-size: 12px;">Latitude</label>
-        <input type="text" id="lat-input" placeholder="e.g. 41.85" style="width: 100%; padding: 12px; background: #0b0c10; border: 1px solid #1f2833; color: #fff; border-radius: 4px; margin-bottom: 16px;" />
-        
-        <label style="display:block; margin-bottom: 8px; color: #8892b0; font-size: 12px;">Longitude</label>
-        <input type="text" id="lon-input" placeholder="e.g. -87.65" style="width: 100%; padding: 12px; background: #0b0c10; border: 1px solid #1f2833; color: #fff; border-radius: 4px; margin-bottom: 24px;" />
-        
-        <button id="predict-btn" style="background: #ff9800; color: #000; border: none; padding: 12px 24px; font-weight: bold; border-radius: 4px; cursor: pointer; width: 100%;">RUN PREDICTION</button>
-
-        <div id="predict-result" style="margin-top: 24px; font-family: monospace; color: #66fcf1;"></div>
+    <div class="card" style="max-width: 600px; margin: 0 auto; border-top: 4px solid #0056b3;">
+      <h3 style="color: #212529; font-size: 18px;">Risk Assessor Tool</h3>
+      <p style="color: #6c757d; font-size: 13px; margin-bottom: 20px;">Input coordinates to evaluate localized risk factors and projected incident volume.</p>
+      
+      <div class="form-group">
+        <label>Latitude</label>
+        <input type="text" id="lat-input" placeholder="e.g. 41.85" />
       </div>
+      
+      <div class="form-group" style="margin-bottom: 24px;">
+        <label>Longitude</label>
+        <input type="text" id="lon-input" placeholder="e.g. -87.65" />
+      </div>
+      
+      <button id="predict-btn" class="btn-primary">EVALUATE SECTOR RISK</button>
+
+      <div id="predict-result" style="margin-top: 24px; font-weight: bold; font-size: 15px; padding: 16px; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px; display: none;"></div>
     </div>
   </div>
 
 </div>
 
-<a href="/logout" class="logout-btn">LOG OUT</a>
+<a href="/logout" class="logout-btn">Log Out Session</a>
 
 <script>
 // --- TAB SWITCHING LOGIC ---
@@ -440,36 +470,31 @@ const tabContents = document.querySelectorAll('.tab-content');
 
 tabs.forEach(tab => {
   tab.addEventListener('click', () => {
-    // Remove active class from all tabs
     tabs.forEach(t => t.classList.remove('active'));
     tabContents.forEach(c => c.classList.remove('active-content'));
-
-    // Add active class to clicked tab
     tab.classList.add('active');
-    
-    // Show corresponding content
     const targetId = tab.getAttribute('data-target');
     document.getElementById(targetId).classList.add('active-content');
   });
 });
 
 // --- MODEL API INTEGRATION ---
-// Fetch Health
 fetch('/model/health')
   .then(res => res.json())
   .then(data => {
     const el = document.getElementById('model-health');
-    if(data.status === 'ok') {
-      el.innerHTML = '✅ API Online (XGBoost Active)';
-      el.style.color = '#4caf50';
+    // FIXED: The Python API returns "healthy", not "ok"
+    if(data.status === 'healthy' || data.status === 'ok') {
+      el.innerHTML = '🟢 Engine Online & Operational';
+      el.style.color = '#198754';
     } else {
-      el.innerHTML = '❌ API Unavailable';
-      el.style.color = '#f44336';
+      el.innerHTML = '🔴 Engine Unresponsive';
+      el.style.color = '#dc3545';
     }
   })
   .catch(err => {
-    document.getElementById('model-health').innerHTML = '❌ Connection Failed';
-    document.getElementById('model-health').style.color = '#f44336';
+    document.getElementById('model-health').innerHTML = '🔴 Connection Failed';
+    document.getElementById('model-health').style.color = '#dc3545';
   });
 
 // Run Prediction
@@ -478,37 +503,45 @@ document.getElementById('predict-btn').addEventListener('click', () => {
   const lon = document.getElementById('lon-input').value;
   const resEl = document.getElementById('predict-result');
   
+  resEl.style.display = 'block';
+
   if(!lat || !lon) {
-    resEl.innerHTML = 'Please enter both coordinates.';
-    resEl.style.color = '#f44336';
+    resEl.innerHTML = '⚠️ Please enter both coordinates.';
+    resEl.style.color = '#dc3545';
     return;
   }
   
-  resEl.innerHTML = 'Analyzing grid matrix...';
-  resEl.style.color = '#8892b0';
+  resEl.innerHTML = 'Processing sector data...';
+  resEl.style.color = '#6c757d';
 
   fetch(`/model/predict?lat=${lat}&lon=${lon}`)
     .then(res => res.json())
     .then(data => {
       if(data.error) {
-        resEl.innerHTML = 'Error: ' + data.error;
-        resEl.style.color = '#f44336';
+        resEl.innerHTML = 'System Error: ' + data.error;
+        resEl.style.color = '#dc3545';
       } else {
-        resEl.innerHTML = `> Prediction Complete <br><br>Hotspot: <span style="color: ${data.is_hotspot ? '#f44336' : '#4caf50'}">${data.is_hotspot ? 'YES' : 'NO'}</span><br>Predicted Crimes: <span style="color: #66fcf1">${Math.round(data.predicted_crimes)}</span>`;
+        const hotspotColor = data.is_hotspot ? '#dc3545' : '#198754';
+        const hotspotText = data.is_hotspot ? 'ELEVATED RISK (HOTSPOT)' : 'STANDARD RISK';
+        
+        resEl.innerHTML = `
+          <div style="color: #212529; margin-bottom: 8px;">Assessment Results:</div>
+          <div style="color: ${hotspotColor}; margin-bottom: 4px;">Classification: ${hotspotText}</div>
+          <div style="color: #0d6efd;">Projected Incidents: ${Math.round(data.predicted_crimes)}</div>
+        `;
       }
     })
     .catch(err => {
-      resEl.innerHTML = 'Failed to reach prediction API.';
-      resEl.style.color = '#f44336';
+      resEl.innerHTML = 'Failed to reach prediction endpoint.';
+      resEl.style.color = '#dc3545';
     });
 });
 
 // --- CHART.JS CONFIGURATION ---
-Chart.defaults.color = '#8892b0';
-Chart.defaults.font.family = 'Inter';
-Chart.defaults.scale.grid.color = 'rgba(255,255,255,0.05)';
+Chart.defaults.color = '#495057';
+Chart.defaults.font.family = "'Helvetica Neue', Helvetica, Arial, sans-serif";
+Chart.defaults.scale.grid.color = '#e9ecef';
 
-// Generate Fake Map Data for Scatter Plot
 const mapData = [];
 for(let i=0; i<800; i++) {
   const lat = 41.65 + Math.random() * 0.4;
@@ -526,7 +559,7 @@ new Chart(document.getElementById('mapChart'), {
       data: mapData,
       backgroundColor: (ctx) => {
         const v = ctx.raw ? ctx.raw.v : 0;
-        return v > 0.8 ? '#f44336' : (v > 0.5 ? '#ff9800' : '#2196f3');
+        return v > 0.8 ? '#dc3545' : (v > 0.5 ? '#fd7e14' : '#0d6efd');
       },
       pointRadius: 2
     }]
@@ -542,21 +575,19 @@ new Chart(document.getElementById('mapChart'), {
   }
 });
 
-// Chart 1: Crimes by Hour
 new Chart(document.getElementById('chart1'), {
   type: 'bar',
   data: {
-    labels: Array.from({length: 24}, (_, i) => i),
+    labels: Array.from({length: 24}, (_, i) => i + ':00'),
     datasets: [{
       label: 'Crimes by Hour',
       data: [15,12,10,8,7,6,8,12,18,22,25,28,30,32,31,34,35,33,29,25,22,20,18,16],
-      backgroundColor: '#2196f3'
+      backgroundColor: '#0d6efd'
     }]
   },
   options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
 });
 
-// Chart 2: Crimes by Day
 new Chart(document.getElementById('chart2'), {
   type: 'bar',
   data: {
@@ -564,13 +595,12 @@ new Chart(document.getElementById('chart2'), {
     datasets: [{
       label: 'Crimes by Day',
       data: [120, 125, 122, 130, 150, 160, 140],
-      backgroundColor: '#4caf50'
+      backgroundColor: '#198754'
     }]
   },
   options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
 });
 
-// Chart 3: Crimes by Year
 new Chart(document.getElementById('chart3'), {
   type: 'line',
   data: {
@@ -578,7 +608,9 @@ new Chart(document.getElementById('chart3'), {
     datasets: [{
       label: 'Crimes by Year',
       data: [350000, 280000, 290000, 295000, 285000],
-      borderColor: '#f44336',
+      borderColor: '#dc3545',
+      backgroundColor: 'rgba(220, 53, 69, 0.1)',
+      fill: true,
       tension: 0.4
     }]
   },
