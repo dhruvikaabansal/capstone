@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Chicago Police Department | Intelligence Portal</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- Leaflet for Real Maps -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -512,8 +515,8 @@ body {
             <h3>Optimized Patrol Path</h3>
             <p>Visualizing the calculated TSP route</p>
           </div>
-          <div class="map-placeholder" style="height: 400px;">
-            <canvas id="routingChart"></canvas>
+          <div class="map-placeholder" style="height: 400px; padding: 0;">
+            <div id="routingMap" style="width: 100%; height: 100%; border-radius: 4px;"></div>
           </div>
         </div>
       </div>
@@ -679,22 +682,43 @@ new Chart(document.getElementById('chart3'), {
 });
 
 // --- ROUTING LOGIC ---
-let routingChartInstance = null;
+let routingMap = null;
+let routeLayers = L.layerGroup();
+
+function initRoutingMap() {
+  if (routingMap) return;
+  // Initialize map centered on Chicago
+  routingMap = L.map('routingMap').setView([41.8781, -87.6298], 11);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap contributors'
+  }).addTo(routingMap);
+  routeLayers.addTo(routingMap);
+}
+
+// Initialize map when the tab is clicked
+document.querySelector('[data-target="tab-routing"]').addEventListener('click', () => {
+  setTimeout(initRoutingMap, 100); // Small timeout to ensure div is visible
+});
 
 document.getElementById('optimize-btn').addEventListener('click', () => {
   const btn = document.getElementById('optimize-btn');
   const listEl = document.getElementById('route-list');
   
+  initRoutingMap(); // Ensure map is ready
+
   btn.innerText = 'CALCULATING TSP...';
   btn.disabled = true;
-  listEl.innerHTML = '<div style="color: #6c757d; font-style: italic;">Computing distance matrix and solving OR-Tools TSP...</div>';
+  listEl.innerHTML = '<div style="color: #6c757d; font-style: italic;">Computing optimal patrol path through hotspots...</div>';
 
-  // Generate 10 random "hotspot" coordinates in Chicago area
+  // Clear previous route
+  routeLayers.clearLayers();
+
+  // Generate random hotspots in Chicago (more constrained for better visualization)
   const points = [];
-  for(let i=0; i<10; i++) {
+  for(let i=0; i<8; i++) {
     points.push({
-      lat: 41.7 + Math.random() * 0.2,
-      lon: -87.8 + Math.random() * 0.2
+      lat: 41.75 + Math.random() * 0.2,
+      lon: -87.75 + Math.random() * 0.2
     });
   }
 
@@ -714,67 +738,54 @@ document.getElementById('optimize-btn').addEventListener('click', () => {
     }
 
     const route = data.route;
+    const latLons = route.map(pt => [pt.lat, pt.lon]);
+
+    // 1. Plot on Map
+    const polyline = L.polyline(latLons, {color: '#dc3545', weight: 4, opacity: 0.8}).addTo(routeLayers);
     
-    // 1. Build List
-    let html = '';
     route.forEach((pt, index) => {
+      const marker = L.circleMarker([pt.lat, pt.lon], {
+        radius: 8,
+        fillColor: index === 0 ? "#198754" : "#003366", // Green for start
+        color: "#fff",
+        weight: 2,
+        opacity: 1,
+        fillOpacity: 1
+      }).addTo(routeLayers);
+      
+      marker.bindPopup(`<b>Stop ${index + 1}</b><br>Sector: CHI-${Math.floor(pt.lat*100)}-${Math.floor(Math.abs(pt.lon)*100)}`);
+    });
+
+    routingMap.fitBounds(polyline.getBounds(), {padding: [30, 30]});
+
+    // 2. Build Information List
+    let html = '';
+    const now = new Date();
+    route.forEach((pt, index) => {
+      const eta = new Date(now.getTime() + index * 15 * 60000); // Mock 15 min intervals
+      const timeStr = eta.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const sectorId = `CHI-${Math.floor(pt.lat*100)}-${Math.floor(Math.abs(pt.lon)*100)}`;
+      
       html += `
-        <div style="padding: 12px; border-bottom: 1px solid #dee2e6; display: flex; align-items: center; gap: 12px;">
-          <div style="background: #0056b3; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">${index + 1}</div>
-          <div>
-            <div style="font-weight: bold; color: #212529;">Waypoint ${index + 1}</div>
-            <div style="color: #6c757d;">Lat: ${pt.lat.toFixed(4)}, Lon: ${pt.lon.toFixed(4)}</div>
+        <div style="padding: 12px; border-bottom: 1px solid #dee2e6; display: flex; align-items: center; gap: 12px; background: ${index === 0 ? '#f0f9ff' : 'transparent'}">
+          <div style="background: ${index === 0 ? '#198754' : '#003366'}; color: white; min-width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 12px;">${index + 1}</div>
+          <div style="flex: 1;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-weight: bold; color: #212529;">Sector ${sectorId}</span>
+              <span style="font-size: 11px; background: #e9ecef; padding: 2px 6px; border-radius: 10px; font-weight: bold;">${index === 0 ? 'START' : 'ETA: ' + timeStr}</span>
+            </div>
+            <div style="color: #6c757d; font-size: 12px; margin-top: 2px;">Dispatch Instructions: Maintain visibility for 15m.</div>
           </div>
         </div>
       `;
     });
     listEl.innerHTML = html;
-
-    // 2. Plot Chart
-    const plotData = route.map(pt => ({ x: pt.lon, y: pt.lat }));
-    
-    if(routingChartInstance) {
-      routingChartInstance.destroy();
-    }
-    
-    routingChartInstance = new Chart(document.getElementById('routingChart'), {
-      type: 'scatter',
-      data: {
-        datasets: [{
-          label: 'Optimal Route',
-          data: plotData,
-          borderColor: '#dc3545',
-          backgroundColor: '#dc3545',
-          borderWidth: 2,
-          pointRadius: 6,
-          pointHoverRadius: 8,
-          showLine: true, // Connect the dots!
-          fill: false
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { 
-          legend: { display: false },
-          tooltip: {
-            callbacks: {
-              label: (ctx) => `Stop ${ctx.dataIndex + 1}: ${ctx.raw.y.toFixed(4)}, ${ctx.raw.x.toFixed(4)}`
-            }
-          }
-        },
-        scales: {
-          x: { title: { display: true, text: 'Longitude' } },
-          y: { title: { display: true, text: 'Latitude' } }
-        }
-      }
-    });
-    
   })
   .catch(err => {
+    console.error(err);
     btn.innerText = 'GENERATE OPTIMAL ROUTE';
     btn.disabled = false;
-    listEl.innerHTML = `<div style="color: #dc3545;">Failed to connect to Optimizer Service.</div>`;
+    listEl.innerHTML = `<div style="color: #dc3545;">Failed to connect to Optimizer Service. Check backend logs.</div>`;
   });
 });
 
