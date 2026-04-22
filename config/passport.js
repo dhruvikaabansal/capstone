@@ -54,8 +54,8 @@ passport.use(new LocalStrategy(
 // ==============================
 passport.use(new GoogleStrategy(
   {
-    clientID: process.env.GOOGLE_CLIENT_ID,
-    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    clientID: process.env.GOOGLE_CLIENT_ID || 'missing_client_id',
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET || 'missing_client_secret',
     callbackURL: "/auth/google/callback", // ✅ FIXED
   },
   async (accessToken, refreshToken, profile, done) => {
