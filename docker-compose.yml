@@ -1,125 +1,4 @@
-# version: "3.8"
-
-# services:
-#   mongo:
-#     image: mongo:7
-#     container_name: loginpagedemo-mongo
-#     restart: unless-stopped
-#     ports:
-#       - "27018:27017"
-#     volumes:
-#       - mongo-data:/data/db
-
-#   app:
-#     build: .
-#     container_name: loginpagedemo-app
-#     restart: unless-stopped
-#     ports:
-#       - "3001:3000"
-#     depends_on:
-#       - mongo
-#     environment:
-    
-#       DOCKER_ENV: "true"
-#       environment:
-#     NODE_ENV: docker  
-#     PORT: 3000
-#     SESSION_SECRET: change-me-in-production
-#     GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
-#     GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
-#     GOOGLE_CALLBACK_URL: http://localhost:3001/auth/google/callback
-      
-
-# volumes:
-#   mongo-data:
-# version: "3.8"
-
-# services:
-#   mongo:
-#     image: mongo:7
-#     container_name: loginpagedemo-mongo
-#     restart: unless-stopped
-#     ports:
-#       - "27018:27017"
-#     volumes:
-#       - mongo-data:/data/db
-
-#   app:
-#     build: .
-#     container_name: loginpagedemo-app
-#     restart: unless-stopped
-#     ports:
-#       - "3001:3000"
-#     depends_on:
-#       - mongo
-#     environment:
-#       NODE_ENV: docker
-#       PORT: 3000
-#       SESSION_SECRET: change-me-in-production
-#       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
-#       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
-#       GOOGLE_CALLBACK_URL: http://localhost:3001/auth/google/callback
-
-# volumes:
-#   mongo-data:
-
-
-# services:
-#   mongo:
-#     image: mongo:7
-#     container_name: capstone-mongo
-#     restart: unless-stopped
-#     ports:
-#       - "27018:27017"
-#     volumes:
-#       - mongo-data:/data/db
-
-#   app:
-#     build: .
-#     container_name: capstone
-#     restart: unless-stopped
-#     ports:
-#       - "3001:3000"
-#     depends_on:
-#       - mongo
-
-#     # 👇 IMPORTANT — load env file
-#     env_file:
-#       - .env.docker
-
-#     environment:
-#       NODE_ENV: docker
-
-# volumes:
-#   mongo-data:
-
-
-# services:
-#   mongo:
-#     image: mongo:7
-#     container_name: capstone-mongo
-#     restart: unless-stopped
-#     ports:
-#       - "27018:27017"
-#     volumes:
-#       - mongo-data:/data/db
-
-#   app:
-#     build: .
-#     container_name: capstone
-#     restart: unless-stopped
-#     ports:
-#       - "3001:3000"
-#     depends_on:
-#       - mongo
-
-#     environment:
-#       NODE_ENV: docker
-#       PORT: ${PORT}
-#       MONGO_URI: ${MONGO_URI}
-
-# volumes:
-#   mongo-data:
+version: "3.8"
 
 services:
   mongo:
@@ -139,11 +18,26 @@ services:
       - "3001:3000"
     depends_on:
       - mongo
+      - crime-model
     environment:
       - PORT=3000
       - MONGODB_URI=mongodb://mongo:27017/capstone
       - SESSION_SECRET=supersecret
       - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
       - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+      - MODEL_API_URL=http://crime-model:8000
+
+  crime-model:
+    build: ./models
+    container_name: capstone-crime-model
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
 volumes:
   mongo-data:
