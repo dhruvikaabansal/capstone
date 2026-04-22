@@ -26,6 +26,8 @@ body {
   justify-content: space-between;
   align-items: flex-end;
   margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 16px;
 }
 
 .title-main h1 {
@@ -49,6 +51,7 @@ body {
   gap: 16px;
   font-family: monospace;
   font-size: 13px;
+  flex-wrap: wrap;
 }
 
 .status-badge .records {
@@ -78,6 +81,8 @@ body {
 .tabs {
   display: flex;
   gap: 32px;
+  overflow-x: auto;
+  white-space: nowrap;
 }
 
 .tab {
@@ -88,6 +93,11 @@ body {
   font-weight: 600;
   cursor: pointer;
   border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+}
+
+.tab:hover {
+  color: #fff;
 }
 
 .tab.active {
@@ -100,6 +110,20 @@ body {
   padding: 32px;
   max-width: 1400px;
   margin: 0 auto;
+}
+
+.tab-content {
+  display: none;
+  animation: fadeIn 0.3s ease;
+}
+
+.tab-content.active-content {
+  display: block;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .grid {
@@ -162,6 +186,7 @@ body {
   border: 1px solid #1f2833;
   border-radius: 8px;
   padding: 24px;
+  height: 100%;
 }
 
 .section-header {
@@ -175,6 +200,7 @@ body {
   font-size: 13px;
   letter-spacing: 2px;
   color: #8892b0;
+  text-transform: uppercase;
 }
 
 .section-header p {
@@ -227,11 +253,45 @@ body {
   cursor: pointer;
   text-decoration: none;
   transition: all 0.2s;
+  z-index: 100;
 }
 
 .logout-btn:hover {
   background: #f44336;
   color: #fff;
+}
+
+/* RESPONSIVE DESIGN */
+@media (max-width: 1024px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+  .charts-row {
+    grid-template-columns: 1fr;
+    height: auto;
+  }
+  .charts-row > div {
+    height: 200px;
+  }
+  .map-placeholder {
+    height: 300px;
+  }
+}
+
+@media (max-width: 768px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+  .card[style] {
+    grid-column: span 1 !important;
+  }
+  .title-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .tabs {
+    gap: 16px;
+  }
 }
 </style>
 </head>
@@ -246,87 +306,204 @@ body {
     <div class="status-badge">
       <span class="records">123,561 RECORDS ANALYSED</span>
       <div class="badge">MODEL ACTIVE</div>
-      <div style="color: #fff; margin-left: 20px;">Agent: <%= user.name %></div>
+      <div style="color: #fff;">Agent: <%= user.name %></div>
     </div>
   </div>
   <div class="tabs">
-    <div class="tab active">OVERVIEW</div>
-    <div class="tab">CRIME MAP</div>
-    <div class="tab">MODEL PERFORMANCE</div>
-    <div class="tab">LOG PREDICTIONS</div>
+    <div class="tab active" data-target="tab-overview">OVERVIEW</div>
+    <div class="tab" data-target="tab-crimemap">CRIME MAP</div>
+    <div class="tab" data-target="tab-performance">MODEL PERFORMANCE</div>
+    <div class="tab" data-target="tab-predictions">LOG PREDICTIONS</div>
   </div>
 </div>
 
 <div class="container">
-  <div class="grid">
-    
-    <!-- LEFT COLUMN: STATS -->
-    <div>
-      <div class="stats-grid">
-        <div class="card card-red" style="grid-column: span 2;">
-          <h3>TOTAL CRIMES</h3>
-          <div class="value" style="color: #f44336;">0.12M</div>
-          <div class="label">Records analysed</div>
-        </div>
+  
+  <!-- TAB CONTENT: OVERVIEW -->
+  <div id="tab-overview" class="tab-content active-content">
+    <div class="grid">
+      <!-- LEFT COLUMN: STATS -->
+      <div>
+        <div class="stats-grid">
+          <div class="card card-red" style="grid-column: span 2;">
+            <h3>TOTAL CRIMES</h3>
+            <div class="value" style="color: #f44336;">0.12M</div>
+            <div class="label">Records analysed</div>
+          </div>
 
-        <div class="card card-blue" style="grid-column: span 2;">
-          <h3>GRID CELLS</h3>
-          <div class="value" style="color: #2196f3;">2,388</div>
-          <div class="label">~500m each</div>
-        </div>
+          <div class="card card-blue" style="grid-column: span 2;">
+            <h3>GRID CELLS</h3>
+            <div class="value" style="color: #2196f3;">2,388</div>
+            <div class="label">~500m each</div>
+          </div>
 
-        <div class="card card-orange">
-          <h3>HOTSPOT CELLS</h3>
-          <div class="value" style="color: #ff9800;">598</div>
-          <div class="label">Top 25% risk zones</div>
-        </div>
+          <div class="card card-orange">
+            <h3>HOTSPOT CELLS</h3>
+            <div class="value" style="color: #ff9800;">598</div>
+            <div class="label">Top 25% risk zones</div>
+          </div>
 
-        <div class="card card-green">
-          <h3>ROC-AUC</h3>
-          <div class="value" style="color: #4caf50;">0.9902</div>
-          <div class="label">Classifier score</div>
-        </div>
+          <div class="card card-green">
+            <h3>ROC-AUC</h3>
+            <div class="value" style="color: #4caf50;">0.9902</div>
+            <div class="label">Classifier score</div>
+          </div>
 
-        <div class="card card-purple" style="grid-column: span 2;">
-          <h3>R² SCORE</h3>
-          <div class="value" style="color: #9c27b0;">0.9324</div>
-          <div class="label">Regressor score</div>
+          <div class="card card-purple" style="grid-column: span 2;">
+            <h3>R² SCORE</h3>
+            <div class="value" style="color: #9c27b0;">0.9324</div>
+            <div class="label">Regressor score</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT COLUMN: SCATTER MAP -->
+      <div>
+        <div class="map-container">
+          <div class="section-header">
+            <h3>CRIME DENSITY SCATTER</h3>
+            <p>Red = hotspot zones</p>
+          </div>
+          <div class="map-placeholder">
+            <canvas id="mapChart"></canvas>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- RIGHT COLUMN: MAP -->
-    <div>
-      <div class="map-container">
-        <div class="section-header">
-          <h3>CRIME DENSITY MAP</h3>
-          <p>Red = hotspot zones</p>
-        </div>
-        <div class="map-placeholder">
-          <!-- A simple canvas for Chart.js scatter plot mimicking a map -->
-          <canvas id="mapChart"></canvas>
-        </div>
+    <!-- BOTTOM: EDA OVERVIEW -->
+    <div class="eda-container">
+      <div class="section-header">
+        <h3>EDA OVERVIEW</h3>
+      </div>
+      <div class="charts-row">
+        <div><canvas id="chart1"></canvas></div>
+        <div><canvas id="chart2"></canvas></div>
+        <div><canvas id="chart3"></canvas></div>
       </div>
     </div>
   </div>
 
-  <!-- BOTTOM: EDA OVERVIEW -->
-  <div class="eda-container">
-    <div class="section-header">
-      <h3>EDA OVERVIEW</h3>
-    </div>
-    <div class="charts-row">
-      <div><canvas id="chart1"></canvas></div>
-      <div><canvas id="chart2"></canvas></div>
-      <div><canvas id="chart3"></canvas></div>
+  <!-- TAB CONTENT: CRIME MAP -->
+  <div id="tab-crimemap" class="tab-content">
+    <div class="map-container" style="padding: 0; overflow: hidden; height: 75vh;">
+      <iframe src="/crime-dashboard" width="100%" height="100%" style="border: none; border-radius: 8px;"></iframe>
     </div>
   </div>
+
+  <!-- TAB CONTENT: MODEL PERFORMANCE -->
+  <div id="tab-performance" class="tab-content">
+    <div class="card card-blue" style="margin-bottom: 24px;">
+      <h3>Model Health API</h3>
+      <div class="value" id="model-health" style="font-size: 18px; color: #fff;">Checking...</div>
+    </div>
+    <div class="grid">
+      <div class="card card-green">
+        <h3>Classifier (ROC-AUC)</h3>
+        <div class="value" style="color: #4caf50;">0.9902</div>
+        <div class="label">XGBoost Classification</div>
+      </div>
+      <div class="card card-purple">
+        <h3>Regressor (R² Score)</h3>
+        <div class="value" style="color: #9c27b0;">0.9324</div>
+        <div class="label">XGBoost Regression</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB CONTENT: LOG PREDICTIONS -->
+  <div id="tab-predictions" class="tab-content">
+    <div class="card card-orange" style="max-width: 600px; margin: 0 auto;">
+      <h3>Log New Prediction</h3>
+      <div style="margin-top: 16px;">
+        <label style="display:block; margin-bottom: 8px; color: #8892b0; font-size: 12px;">Latitude</label>
+        <input type="text" id="lat-input" placeholder="e.g. 41.85" style="width: 100%; padding: 12px; background: #0b0c10; border: 1px solid #1f2833; color: #fff; border-radius: 4px; margin-bottom: 16px;" />
+        
+        <label style="display:block; margin-bottom: 8px; color: #8892b0; font-size: 12px;">Longitude</label>
+        <input type="text" id="lon-input" placeholder="e.g. -87.65" style="width: 100%; padding: 12px; background: #0b0c10; border: 1px solid #1f2833; color: #fff; border-radius: 4px; margin-bottom: 24px;" />
+        
+        <button id="predict-btn" style="background: #ff9800; color: #000; border: none; padding: 12px 24px; font-weight: bold; border-radius: 4px; cursor: pointer; width: 100%;">RUN PREDICTION</button>
+
+        <div id="predict-result" style="margin-top: 24px; font-family: monospace; color: #66fcf1;"></div>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <a href="/logout" class="logout-btn">LOG OUT</a>
 
 <script>
-// Chart Defaults
+// --- TAB SWITCHING LOGIC ---
+const tabs = document.querySelectorAll('.tab');
+const tabContents = document.querySelectorAll('.tab-content');
+
+tabs.forEach(tab => {
+  tab.addEventListener('click', () => {
+    // Remove active class from all tabs
+    tabs.forEach(t => t.classList.remove('active'));
+    tabContents.forEach(c => c.classList.remove('active-content'));
+
+    // Add active class to clicked tab
+    tab.classList.add('active');
+    
+    // Show corresponding content
+    const targetId = tab.getAttribute('data-target');
+    document.getElementById(targetId).classList.add('active-content');
+  });
+});
+
+// --- MODEL API INTEGRATION ---
+// Fetch Health
+fetch('/model/health')
+  .then(res => res.json())
+  .then(data => {
+    const el = document.getElementById('model-health');
+    if(data.status === 'ok') {
+      el.innerHTML = '✅ API Online (XGBoost Active)';
+      el.style.color = '#4caf50';
+    } else {
+      el.innerHTML = '❌ API Unavailable';
+      el.style.color = '#f44336';
+    }
+  })
+  .catch(err => {
+    document.getElementById('model-health').innerHTML = '❌ Connection Failed';
+    document.getElementById('model-health').style.color = '#f44336';
+  });
+
+// Run Prediction
+document.getElementById('predict-btn').addEventListener('click', () => {
+  const lat = document.getElementById('lat-input').value;
+  const lon = document.getElementById('lon-input').value;
+  const resEl = document.getElementById('predict-result');
+  
+  if(!lat || !lon) {
+    resEl.innerHTML = 'Please enter both coordinates.';
+    resEl.style.color = '#f44336';
+    return;
+  }
+  
+  resEl.innerHTML = 'Analyzing grid matrix...';
+  resEl.style.color = '#8892b0';
+
+  fetch(`/model/predict?lat=${lat}&lon=${lon}`)
+    .then(res => res.json())
+    .then(data => {
+      if(data.error) {
+        resEl.innerHTML = 'Error: ' + data.error;
+        resEl.style.color = '#f44336';
+      } else {
+        resEl.innerHTML = `> Prediction Complete <br><br>Hotspot: <span style="color: ${data.is_hotspot ? '#f44336' : '#4caf50'}">${data.is_hotspot ? 'YES' : 'NO'}</span><br>Predicted Crimes: <span style="color: #66fcf1">${Math.round(data.predicted_crimes)}</span>`;
+      }
+    })
+    .catch(err => {
+      resEl.innerHTML = 'Failed to reach prediction API.';
+      resEl.style.color = '#f44336';
+    });
+});
+
+// --- CHART.JS CONFIGURATION ---
 Chart.defaults.color = '#8892b0';
 Chart.defaults.font.family = 'Inter';
 Chart.defaults.scale.grid.color = 'rgba(255,255,255,0.05)';
@@ -334,10 +511,8 @@ Chart.defaults.scale.grid.color = 'rgba(255,255,255,0.05)';
 // Generate Fake Map Data for Scatter Plot
 const mapData = [];
 for(let i=0; i<800; i++) {
-  // Random coordinates resembling a map shape
   const lat = 41.65 + Math.random() * 0.4;
   const lng = -87.90 + Math.random() * 0.35;
-  // Center is denser (hotspots)
   const dist = Math.sqrt(Math.pow(lat - 41.85, 2) + Math.pow(lng - -87.65, 2));
   if(Math.random() > dist * 3) {
     mapData.push({ x: lng, y: lat, v: Math.random() });
