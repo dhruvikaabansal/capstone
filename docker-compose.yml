@@ -121,8 +121,6 @@
 # volumes:
 #   mongo-data:
 
-version: '3.8'
-
 services:
   mongo:
     image: mongo:7
@@ -141,8 +139,10 @@ services:
       - "3001:3000"
     depends_on:
       - mongo
-    env_file:
-      - .env
+    environment:
+      - PORT=3000
+      - MONGODB_URI=mongodb://mongo:27017/capstone
+      - SESSION_SECRET=supersecret
 
 volumes:
   mongo-data:
