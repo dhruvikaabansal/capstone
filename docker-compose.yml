@@ -64,6 +64,36 @@
 #   mongo-data:
 
 
+# services:
+#   mongo:
+#     image: mongo:7
+#     container_name: capstone-mongo
+#     restart: unless-stopped
+#     ports:
+#       - "27018:27017"
+#     volumes:
+#       - mongo-data:/data/db
+
+#   app:
+#     build: .
+#     container_name: capstone
+#     restart: unless-stopped
+#     ports:
+#       - "3001:3000"
+#     depends_on:
+#       - mongo
+
+#     # 👇 IMPORTANT — load env file
+#     env_file:
+#       - .env.docker
+
+#     environment:
+#       NODE_ENV: docker
+
+# volumes:
+#   mongo-data:
+
+
 services:
   mongo:
     image: mongo:7
@@ -83,12 +113,10 @@ services:
     depends_on:
       - mongo
 
-    # 👇 IMPORTANT — load env file
-    env_file:
-      - .env.docker
-
     environment:
       NODE_ENV: docker
+      PORT: ${PORT}
+      MONGO_URI: ${MONGO_URI}
 
 volumes:
   mongo-data:
