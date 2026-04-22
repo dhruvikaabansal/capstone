@@ -44,7 +44,7 @@ app.use(
       collectionName: 'sessions',
     }),
     cookie: {
-      maxAge: 1000 * 60 * 60 * 24,
+      maxAge: 1000 * 60 * 60 * 24, // 1 day
     },
   })
 );
@@ -66,7 +66,7 @@ app.use(flash());
 app.use('/', authRoutes);
 
 // ==============================
-// Health Check (Jenkins/Docker)
+// Health Check (VERY IMPORTANT)
 // ==============================
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'ok' });
