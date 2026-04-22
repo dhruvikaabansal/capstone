@@ -12,12 +12,14 @@ const MongoStore = require('connect-mongo').default;
 const flash = require('express-flash');
 const passport = require('./config/passport');
 const authRoutes = require('./routes/auth');
+const axios = require('axios');  // ← NEW
 
 // ==============================
 // App Init
 // ==============================
 const app = express();
 const PORT = process.env.PORT || 3000;
+const MODEL_API_URL = process.env.MODEL_API_URL || 'http://localhost:8000';  // ← NEW
 
 // ==============================
 // View Engine
@@ -30,6 +32,7 @@ app.set('views', __dirname + '/views');
 // ==============================
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+app.use('/static', express.static(__dirname + '/public'));  // ← NEW
 
 // ==============================
 // Session Store (Mongo)
@@ -44,7 +47,7 @@ app.use(
       collectionName: 'sessions',
     }),
     cookie: {
-      maxAge: 1000 * 60 * 60 * 24, // 1 day
+      maxAge: 1000 * 60 * 60 * 24,
     },
   })
 );
@@ -66,7 +69,7 @@ app.use(flash());
 app.use('/', authRoutes);
 
 // ==============================
-// Homepage (Landing Page)
+// Homepage
 // ==============================
 app.get('/', (req, res) => {
   res.render('index', { user: req.user });
@@ -78,6 +81,45 @@ app.get('/', (req, res) => {
 app.get('/dashboard', (req, res) => {
   if (!req.user) return res.redirect('/login');
   res.render('dashboard', { user: req.user });
+});
+
+// ==============================
+// Crime Model Routes              ← NEW
+// ==============================
+app.get('/model/health', async (req, res) => {
+    try {
+        const response = await axios.get(`${MODEL_API_URL}/health`);
+        res.json(response.data);
+    } catch (err) {
+        res.status(500).json({ error: 'Model API unavailable' });
+    }
+});
+
+app.get('/model/predict', async (req, res) => {
+    try {
+        const { lat, lon } = req.query;
+        const response = await axios.post(`${MODEL_API_URL}/predict`, {
+            lat_bin: parseFloat(lat),
+            lon_bin: parseFloat(lon)
+        });
+        res.json(response.data);
+    } catch (err) {
+        res.status(500).json({ error: 'Model API unavailable' });
+    }
+});
+
+app.get('/model/stats', async (req, res) => {
+    try {
+        const response = await axios.get(`${MODEL_API_URL}/stats`);
+        res.json(response.data);
+    } catch (err) {
+        res.status(500).json({ error: 'Model API unavailable' });
+    }
+});
+
+app.get('/crime-dashboard', (req, res) => {
+    if (!req.user) return res.redirect('/login');
+    res.sendFile(__dirname + '/dashboard/index.html');
 });
 
 // ==============================

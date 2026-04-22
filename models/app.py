@@ -5,6 +5,7 @@ import joblib
 import numpy as np
 import pandas as pd
 
+# ── single instance only ─────────────────────────────────────
 app = FastAPI(title="Chicago Crime Prediction API")
 
 app.add_middleware(
@@ -14,7 +15,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
+# Load models
 clf = joblib.load("hotspot_classifier.pkl")
 reg = joblib.load("crime_count_regressor.pkl")
 
