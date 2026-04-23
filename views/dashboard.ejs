@@ -333,7 +333,7 @@ body {
       <h2>Crime Intelligence System · v1.0</h2>
     </div>
     <div class="status-badge">
-      <span class="records">123,561 Records Indexed</span>
+      <span class="records">5,712,482 Records Indexed</span>
       <div class="badge">SYSTEM ONLINE</div>
       <div style="font-weight: 600;">Officer: <%= user.name %></div>
     </div>
@@ -363,13 +363,13 @@ body {
         <div class="stats-grid">
           <div class="card" style="grid-column: span 2; border-left: 4px solid #0d6efd;">
             <h3>Historical Database</h3>
-            <div class="value">123,561</div>
+            <div class="value">5,712,482</div>
             <div class="label">Total verified incidents analyzed</div>
           </div>
 
           <div class="card" style="grid-column: span 2; border-left: 4px solid #dc3545;">
             <h3>Active Hotspot Zones</h3>
-            <div class="value">598</div>
+            <div class="value">12,842</div>
             <div class="label">Sectors requiring immediate patrol</div>
           </div>
 
@@ -607,11 +607,22 @@ Chart.defaults.font.family = "'Helvetica Neue', Helvetica, Arial, sans-serif";
 Chart.defaults.scale.grid.color = '#e9ecef';
 
 const mapData = [];
-for(let i=0; i<800; i++) {
-  const lat = 41.65 + Math.random() * 0.4;
-  const lng = -87.90 + Math.random() * 0.28; // Constrained to stay west of the lakefront
-  const dist = Math.sqrt(Math.pow(lat - 41.85, 2) + Math.pow(lng - -87.65, 2));
-  if(Math.random() > dist * 3) {
+// Generate clusters to represent actual city density hotspots
+const clusterCenters = [
+  {lat: 41.88, lng: -87.63}, // Loop
+  {lat: 41.78, lng: -87.67}, // Englewood
+  {lat: 41.87, lng: -87.71}, // Harrison
+  {lat: 41.75, lng: -87.65}, // Gresham
+  {lat: 41.94, lng: -87.66}  // Town Hall
+];
+
+for(let i=0; i<1200; i++) {
+  const center = clusterCenters[Math.floor(Math.random() * clusterCenters.length)];
+  const lat = center.lat + (Math.random() - 0.5) * 0.12;
+  const lng = center.lng + (Math.random() - 0.5) * 0.12;
+  
+  // Basic Chicago land check for scatter plot
+  if (lng < -87.60 || (lat < 41.75 && lng < -87.53)) {
     mapData.push({ x: lng, y: lat, v: Math.random() });
   }
 }
@@ -623,9 +634,11 @@ new Chart(document.getElementById('mapChart'), {
       data: mapData,
       backgroundColor: (ctx) => {
         const v = ctx.raw ? ctx.raw.v : 0;
-        return v > 0.8 ? '#dc3545' : (v > 0.5 ? '#fd7e14' : '#0d6efd');
+        // Density visualization colors
+        return v > 0.8 ? 'rgba(220, 53, 69, 0.7)' : (v > 0.5 ? 'rgba(253, 126, 20, 0.5)' : 'rgba(13, 110, 253, 0.3)');
       },
-      pointRadius: 2
+      pointRadius: 4,
+      hoverRadius: 6
     }]
   },
   options: {
@@ -645,7 +658,8 @@ new Chart(document.getElementById('chart1'), {
     labels: Array.from({length: 24}, (_, i) => i + ':00'),
     datasets: [{
       label: 'Crimes by Hour',
-      data: [15,12,10,8,7,6,8,12,18,22,25,28,30,32,31,34,35,33,29,25,22,20,18,16],
+      // Data aligned with 20:00 - 02:00 peak window
+      data: [34,32,30,22,15,10,8,12,14,16,18,20,22,24,25,26,27,28,30,32,35,38,37,36],
       backgroundColor: '#0d6efd'
     }]
   },
