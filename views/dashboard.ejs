@@ -609,7 +609,7 @@ Chart.defaults.scale.grid.color = '#e9ecef';
 const mapData = [];
 for(let i=0; i<800; i++) {
   const lat = 41.65 + Math.random() * 0.4;
-  const lng = -87.90 + Math.random() * 0.35;
+  const lng = -87.90 + Math.random() * 0.28; // Constrained to stay west of the lakefront
   const dist = Math.sqrt(Math.pow(lat - 41.85, 2) + Math.pow(lng - -87.65, 2));
   if(Math.random() > dist * 3) {
     mapData.push({ x: lng, y: lat, v: Math.random() });
@@ -713,12 +713,29 @@ document.getElementById('optimize-btn').addEventListener('click', () => {
   // Clear previous route
   routeLayers.clearLayers();
 
-  // Generate random hotspots in Chicago (more constrained for better visualization)
+  // Use land-based seed coordinates (Police Districts/Sectors) to avoid water
+  const seeds = [
+    {lat: 41.88, lon: -87.63}, // Loop/Near North
+    {lat: 41.85, lon: -87.65}, // Near West
+    {lat: 41.81, lon: -87.63}, // Wentworth
+    {lat: 41.78, lon: -87.67}, // Englewood
+    {lat: 41.75, lon: -87.65}, // Gresham
+    {lat: 41.87, lon: -87.71}, // Harrison
+    {lat: 41.94, lon: -87.66}, // Town Hall
+    {lat: 41.92, lon: -87.76}, // Grand Central
+    {lat: 41.76, lon: -87.60}, // Grand Crossing
+    {lat: 41.71, lon: -87.58}, // South Chicago (safe inland)
+    {lat: 41.83, lon: -87.62}, // Oakland
+    {lat: 41.97, lon: -87.70}  // Foster/Albany Park
+  ];
+
   const points = [];
+  const shuffled = seeds.sort(() => 0.5 - Math.random());
   for(let i=0; i<8; i++) {
+    const seed = shuffled[i % shuffled.length];
     points.push({
-      lat: 41.75 + Math.random() * 0.2,
-      lon: -87.75 + Math.random() * 0.2
+      lat: seed.lat + (Math.random() - 0.5) * 0.02,
+      lon: seed.lon + (Math.random() - 0.5) * 0.02
     });
   }
 
