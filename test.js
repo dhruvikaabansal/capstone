@@ -18,4 +18,5 @@ describe('App', () => {
     const routes = require('./routes/auth');
     assert.ok(routes);
   });
+  console.log('code complete')
 });
