@@ -1,43 +1,53 @@
-version: "3.8"
-
 services:
   mongo:
     image: mongo:7
-    container_name: capstone-mongo
+    container_name: spp-mongo
     restart: unless-stopped
     ports:
       - "27018:27017"
     volumes:
       - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
 
-  app:
-    build: .
-    container_name: capstone
-    restart: unless-stopped
-    ports:
-      - "3001:3000"
-    depends_on:
-      - mongo
-      - crime-model
-    environment:
-      - PORT=3000
-      - MONGODB_URI=mongodb://mongo:27017/capstone
-      - SESSION_SECRET=supersecret
-      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
-      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
-      - MODEL_API_URL=http://crime-model:8000
-
-  crime-model:
-    build: ./models
-    container_name: capstone-crime-model
+  model:
+    build: ./ml-service
+    container_name: spp-model
     restart: unless-stopped
     ports:
       - "8000:8000"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+      # python:3.11-slim ships neither curl nor wget, so the check runs in Python.
+      test: ["CMD", "python", "-c",
+             "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:8000/health', timeout=4).status == 200 else 1)"]
+      interval: 15s
+      timeout: 8s
+      retries: 5
+      start_period: 40s
+
+  app:
+    build: .
+    container_name: spp-app
+    restart: unless-stopped
+    ports:
+      - "3001:3000"
+    depends_on:
+      mongo:
+        condition: service_healthy
+      model:
+        condition: service_healthy
+    environment:
+      PORT: 3000
+      NODE_ENV: production
+      MONGODB_URI: mongodb://mongo:27017/smart-policing-portal
+      MODEL_API_URL: http://model:8000
+      SESSION_SECRET: ${SESSION_SECRET:?SESSION_SECRET must be set - copy .env.example to .env}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
 
 volumes:
   mongo-data:

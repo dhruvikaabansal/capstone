@@ -1,281 +1,73 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Chicago Police Department | Request Access</title>
-
-<style>
-* { margin: 0; padding: 0; box-sizing: border-box; }
-
-body {
-  height: 100vh;
-  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  background: #f4f6f9;
-  color: #333333;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* TOP NAV BAR */
-.top-bar {
-  position: fixed;
-  top: 0; left: 0; right: 0;
-  height: 60px;
-  background: #003366;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  display: flex;
-  align-items: center;
-  padding: 0 32px;
-  color: #ffffff;
-  font-weight: bold;
-  letter-spacing: 1px;
-}
-
-/* LOGIN CONTAINER */
-.container {
-  display: flex;
-  width: 900px;
-  background: #ffffff;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  overflow: hidden;
-}
-
-/* LEFT PANEL */
-.left {
-  flex: 1.2;
-  background: #004080;
-  color: #ffffff;
-  padding: 60px 40px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  position: relative;
-}
-
-.brand {
-  font-size: 32px;
-  font-weight: 800;
-  margin-bottom: 16px;
-  line-height: 1.2;
-}
-
-.brand span { color: #a0c4ff; }
-
-.tagline {
-  font-size: 15px;
-  color: #e2e8f0;
-  line-height: 1.6;
-  margin-bottom: 40px;
-}
-
-.status {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: rgba(255,255,255,0.1);
-  padding: 8px 16px;
-  border-radius: 4px;
-  font-size: 13px;
-  font-weight: bold;
-}
-
-.status::before {
-  content: "";
-  width: 8px;
-  height: 8px;
-  background: #ffc107;
-  border-radius: 50%;
-}
-
-/* RIGHT PANEL */
-.right {
-  flex: 1;
-  padding: 50px 40px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
-h2 {
-  color: #003366;
-  font-size: 24px;
-  margin-bottom: 8px;
-}
-
-.subtitle {
-  color: #6c757d;
-  font-size: 14px;
-  margin-bottom: 24px;
-}
-
-.error {
-  background: #f8d7da;
-  color: #721c24;
-  border: 1px solid #f5c6cb;
-  padding: 10px;
-  border-radius: 4px;
-  font-size: 13px;
-  margin-bottom: 16px;
-  text-align: center;
-}
-
-.form-group {
-  margin-bottom: 16px;
-}
-
-label {
-  display: block;
-  font-size: 13px;
-  font-weight: bold;
-  color: #495057;
-  margin-bottom: 6px;
-}
-
-input {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #ced4da;
-  border-radius: 4px;
-  font-size: 14px;
-  transition: border-color 0.2s;
-}
-
-input:focus {
-  border-color: #0056b3;
-  outline: none;
-}
-
-.btn {
-  width: 100%;
-  padding: 12px;
-  background: #0056b3;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  font-weight: bold;
-  font-size: 14px;
-  cursor: pointer;
-  transition: background 0.2s;
-  margin-top: 8px;
-}
-
-.btn:hover { background: #004494; }
-
-.divider {
-  display: flex;
-  align-items: center;
-  text-align: center;
-  color: #adb5bd;
-  font-size: 12px;
-  margin: 20px 0;
-}
-
-.divider::before, .divider::after {
-  content: '';
-  flex: 1;
-  border-bottom: 1px solid #dee2e6;
-}
-
-.divider::before { margin-right: .5em; }
-.divider::after { margin-left: .5em; }
-
-.btn-google {
-  background: #ffffff;
-  color: #495057;
-  border: 1px solid #ced4da;
-  margin-top: 0;
-}
-
-.btn-google:hover {
-  background: #f8f9fa;
-  color: #212529;
-}
-
-.links {
-  margin-top: 24px;
-  text-align: center;
-  font-size: 13px;
-  color: #6c757d;
-}
-
-.links a {
-  color: #0056b3;
-  text-decoration: none;
-  font-weight: bold;
-}
-.links a:hover { text-decoration: underline; }
-
-/* Responsive */
-@media (max-width: 900px) {
-  .container {
-    flex-direction: column;
-    width: 90%;
-    margin: 80px 0 40px;
-  }
-}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Create an account | Smart Policing Portal</title>
+  <link rel="stylesheet" href="/static/css/portal.css" />
 </head>
+<body class="auth-body">
 
-<body>
-<div class="top-bar">CHICAGO POLICE DEPARTMENT</div>
+<div class="top-bar">SMART POLICING PORTAL</div>
 
-<div class="container">
-  <!-- LEFT -->
-  <div class="left">
-    <div class="brand">CRIME INTELLIGENCE<br><span>SYSTEM</span></div>
-    <div class="tagline">
-      Secure onboarding for authorized personnel.
-      Access to the Crime Intelligence System is logged, monitored, and restricted to official use only.
-    </div>
-    <div class="status">CLEARANCE REQUIRED</div>
-  </div>
+<main class="auth-card">
+  <section class="auth-left">
+    <div class="brand">SMART POLICING<br /><span>PORTAL</span></div>
+    <p class="tagline">
+      Create an account to access sector risk assessment, the geospatial
+      incident map and the patrol route optimiser.
+    </p>
+    <ul class="facts">
+      <li>Sessions are stored server-side and expire after 24 hours</li>
+      <li>Passwords are hashed with bcrypt before storage</li>
+    </ul>
+  </section>
 
-  <!-- RIGHT -->
-  <div class="right">
-    <h2>Request Access</h2>
-    <div class="subtitle">Create a new officer account.</div>
+  <section class="auth-right">
+    <h1>Create an account</h1>
+    <p class="subtitle">All fields are required.</p>
 
-    <% if (typeof error !== 'undefined' && error) { %>
-      <div class="error"><%= error %></div>
+    <% if (typeof error !== 'undefined' && error && error.length) { %>
+      <div class="alert alert-error" role="alert"><%= Array.isArray(error) ? error[0] : error %></div>
     <% } %>
 
-    <form action="/signup" method="POST">
+    <form action="/signup" method="POST" autocomplete="on">
       <div class="form-group">
-        <label>FULL NAME</label>
-        <input type="text" name="name" required>
+        <label for="name">Full name</label>
+        <input id="name" type="text" name="name" required autocomplete="name" />
       </div>
 
       <div class="form-group">
-        <label>OFFICIAL EMAIL</label>
-        <input type="email" name="email" required>
+        <label for="email">Email</label>
+        <input id="email" type="email" name="email" required autocomplete="username" />
       </div>
 
       <div class="form-group">
-        <label>PASSWORD</label>
-        <input type="password" name="password" minlength="6" required>
+        <label for="password">Password</label>
+        <input id="password" type="password" name="password" required minlength="8"
+               autocomplete="new-password" />
+        <p class="hint">At least 8 characters.</p>
       </div>
 
       <div class="form-group">
-        <label>CONFIRM PASSWORD</label>
-        <input type="password" name="confirmPassword" required>
+        <label for="confirmPassword">Confirm password</label>
+        <input id="confirmPassword" type="password" name="confirmPassword" required minlength="8"
+               autocomplete="new-password" />
       </div>
 
-      <button class="btn">REGISTER ACCOUNT</button>
+      <button class="btn" type="submit">Create account</button>
     </form>
 
-    <div class="divider">OR</div>
+    <% if (googleEnabled) { %>
+      <div class="divider">or</div>
+      <a href="/auth/google" style="text-decoration: none;">
+        <button class="btn btn-secondary" type="button">Continue with Google</button>
+      </a>
+    <% } %>
 
-    <a href="/auth/google" style="text-decoration: none;">
-      <button class="btn btn-google">Register with Google Workspace</button>
-    </a>
+    <p class="links">Already registered? <a href="/login">Sign in</a></p>
+  </section>
+</main>
 
-    <div class="links">
-      Already have an account? <a href="/login">Login here</a>
-    </div>
-  </div>
-</div>
 </body>
 </html>

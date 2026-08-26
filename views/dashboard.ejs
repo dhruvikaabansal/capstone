@@ -3,823 +3,821 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Chicago Police Department | Intelligence Portal</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<!-- Leaflet for Real Maps -->
+<title>Smart Policing Portal</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
+:root {
+  --navy: #0b2545;
+  --navy-light: #14395f;
+  --accent: #2f6fed;
+  --bg: #f4f6f9;
+  --surface: #fff;
+  --border: #dee2e6;
+  --text: #212529;
+  --muted: #6c757d;
+  --danger: #c0392b;
+  --warning: #d97706;
+  --success: #1a7f4b;
+}
 * { margin: 0; padding: 0; box-sizing: border-box; }
-
 body {
-  background: #f4f6f9;
-  color: #333333;
+  background: var(--bg); color: var(--text);
   font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  padding-bottom: 50px;
+  line-height: 1.5; padding-bottom: 40px;
 }
 
-/* TOP HEADER */
-.header {
-  background: #003366; /* Standard Police Blue */
-  padding: 20px 32px 0 32px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  color: #ffffff;
-}
+/* Header */
+.header { background: var(--navy); color: #fff; padding: 18px 32px 0; box-shadow: 0 2px 4px rgba(0,0,0,.1); }
+.title-row { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; margin-bottom: 16px; }
+.title-main h1 { font-size: 20px; font-weight: 800; letter-spacing: 1px; }
+.title-main h2 { font-size: 13px; color: #a9c6f5; font-weight: 400; margin-top: 2px; }
+.status-badge { display: flex; align-items: center; gap: 14px; font-size: 13px; flex-wrap: wrap; }
+.status-badge .records { color: #a9c6f5; }
+.badge { display: inline-flex; align-items: center; gap: 7px; background: #2b5f45; color: #d6f5e3; padding: 4px 11px; border-radius: 4px; font-weight: 700; font-size: 11px; letter-spacing: .5px; }
+.badge::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: #4ade80; }
+.badge.offline { background: #5c2320; color: #ffd9d5; }
+.badge.offline::before { background: #f87171; }
+.logout-form { display: inline; }
+.logout-btn { background: transparent; border: 1px solid rgba(255,255,255,.4); color: #fff; padding: 5px 12px; border-radius: 4px; font-size: 12px; cursor: pointer; font-family: inherit; }
+.logout-btn:hover { background: rgba(255,255,255,.12); }
 
-.title-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  margin-bottom: 20px;
-  flex-wrap: wrap;
-  gap: 16px;
-}
+.tabs { display: flex; gap: 6px; overflow-x: auto; }
+.tab { padding: 11px 15px; color: #a9c6f5; font-size: 13px; font-weight: 600; cursor: pointer; border: none; background: none; border-bottom: 3px solid transparent; white-space: nowrap; font-family: inherit; letter-spacing: .3px; }
+.tab:hover { color: #fff; }
+.tab.active { color: #fff; border-bottom-color: #fff; background: rgba(255,255,255,.08); border-radius: 4px 4px 0 0; }
 
-.title-main h1 {
-  font-size: 22px;
-  font-weight: 700;
-  letter-spacing: 1px;
-  margin-bottom: 4px;
-}
+/* Layout */
+.container { padding: 26px 32px; max-width: 1400px; margin: 0 auto; }
+.tab-content { display: none; }
+.tab-content.active-content { display: block; animation: fade .25s ease; }
+@keyframes fade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
 
-.title-main h2 {
-  font-size: 14px;
-  color: #a0c4ff;
-  font-weight: 400;
-}
+.grid { display: grid; grid-template-columns: 340px 1fr; gap: 22px; align-items: start; }
+.stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 
-.status-badge {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  font-size: 14px;
-  flex-wrap: wrap;
-}
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 18px; box-shadow: 0 1px 3px rgba(0,0,0,.04); }
+.card h3 { font-size: 11px; color: var(--muted); font-weight: 700; letter-spacing: .7px; text-transform: uppercase; margin-bottom: 7px; }
+.card .value { font-size: 26px; font-weight: 700; line-height: 1.15; }
+.card .value.small { font-size: 19px; }
+.card .label { font-size: 12.5px; color: var(--muted); margin-top: 3px; }
+.span-2 { grid-column: span 2; }
 
-.status-badge .records {
-  color: #a0c4ff;
-}
+.section-header { border-bottom: 1px solid #e9ecef; padding-bottom: 10px; margin-bottom: 16px; }
+.section-header h3 { font-size: 15px; font-weight: 700; }
+.section-header p { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
 
-.badge {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: #28a745;
-  color: #ffffff;
-  padding: 4px 12px;
-  border-radius: 4px;
-  font-weight: bold;
-  font-size: 12px;
-}
+.panel { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,.04); }
+.panel + .panel { margin-top: 22px; }
 
-.badge::before {
-  content: "";
-  width: 8px;
-  height: 8px;
-  background: #ffffff;
-  border-radius: 50%;
-}
+.chart-box { position: relative; height: 300px; }
+.charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
 
-.tabs {
-  display: flex;
-  gap: 24px;
-  overflow-x: auto;
-  white-space: nowrap;
-}
+.provenance { font-size: 12px; color: var(--muted); background: #f8f9fa; border-left: 3px solid var(--accent); padding: 10px 12px; border-radius: 0 4px 4px 0; margin-top: 14px; }
 
-.tab {
-  padding: 12px 16px;
-  color: #a0c4ff;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  border-bottom: 4px solid transparent;
-  transition: all 0.2s;
-  text-transform: uppercase;
-}
+.notice { padding: 13px 16px; border-radius: 6px; border-left: 4px solid var(--navy); background: #eaeef4; font-size: 14px; margin-bottom: 20px; }
+.notice.warn { border-color: var(--warning); background: #fdf4e3; }
+.notice.error { border-color: var(--danger); background: #fdecea; color: #7d241a; }
 
-.tab:hover {
-  color: #ffffff;
-}
+/* Forms */
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.form-group { margin-bottom: 14px; }
+.form-group label { display: block; font-size: 11.5px; font-weight: 700; letter-spacing: .5px; text-transform: uppercase; color: var(--muted); margin-bottom: 5px; }
+.form-group input, .form-group select { width: 100%; padding: 9px 11px; border: 1px solid #ced4da; border-radius: 5px; font-size: 14px; font-family: inherit; }
+.form-group input:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+.form-group .hint { font-size: 11.5px; color: var(--muted); margin-top: 4px; }
+.btn { padding: 11px 20px; border: none; border-radius: 6px; background: var(--accent); color: #fff; font-weight: 700; font-size: 13.5px; cursor: pointer; font-family: inherit; width: 100%; }
+.btn:hover:not(:disabled) { background: #2559c4; }
+.btn:disabled { opacity: .6; cursor: progress; }
+.btn-ghost { background: #fff; color: var(--navy); border: 1px solid var(--border); }
 
-.tab.active {
-  color: #ffffff;
-  border-bottom: 4px solid #ffffff;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 4px 4px 0 0;
-}
+details.advanced { margin: 4px 0 16px; }
+details.advanced summary { cursor: pointer; font-size: 13px; color: var(--accent); font-weight: 600; padding: 6px 0; }
 
-/* MAIN LAYOUT */
-.container {
-  padding: 32px;
-  max-width: 1400px;
-  margin: 0 auto;
-}
+/* Results */
+.result { margin-top: 20px; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; display: none; }
+.result-head { padding: 14px 16px; color: #fff; }
+.result-head .rl { font-size: 12px; letter-spacing: 1px; opacity: .85; }
+.result-head .rv { font-size: 22px; font-weight: 800; }
+.result-body { padding: 16px; background: #fff; }
+.metric-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f1f3f5; font-size: 14px; }
+.metric-row:last-child { border-bottom: none; }
+.metric-row .k { color: var(--muted); }
+.metric-row .v { font-weight: 700; }
 
-.tab-content {
-  display: none;
-  animation: fadeIn 0.3s ease;
-}
+.tag { display: inline-block; font-size: 10.5px; font-weight: 700; letter-spacing: .4px; padding: 2px 7px; border-radius: 3px; text-transform: uppercase; }
+.tag-observed { background: #e3f0e8; color: #14603a; }
+.tag-derived { background: #e6edfb; color: #1c3f8f; }
+.tag-default { background: #f1f3f5; color: #495057; }
+.tag-override { background: #fdf0dd; color: #8a5200; }
 
-.tab-content.active-content {
-  display: block;
-}
+table.prov { width: 100%; border-collapse: collapse; font-size: 12.5px; margin-top: 8px; }
+table.prov th { text-align: left; color: var(--muted); font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: .4px; padding: 6px 8px; border-bottom: 1px solid var(--border); }
+table.prov td { padding: 6px 8px; border-bottom: 1px solid #f1f3f5; }
+table.prov td.num { text-align: right; font-variant-numeric: tabular-nums; }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(5px); }
-  to { opacity: 1; transform: translateY(0); }
-}
+/* Maps */
+.map-frame { height: 68vh; min-height: 420px; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: #fff; }
+.map-frame iframe { width: 100%; height: 100%; border: 0; }
+#routingMap { width: 100%; height: 430px; border-radius: 6px; }
 
-.grid {
-  display: grid;
-  grid-template-columns: 350px 1fr;
-  gap: 24px;
-}
+.route-list { max-height: 380px; overflow-y: auto; margin-top: 14px; border-top: 1px solid var(--border); }
+.route-stop { display: flex; gap: 12px; align-items: center; padding: 11px 4px; border-bottom: 1px solid #f1f3f5; }
+.route-stop .n { flex: 0 0 27px; height: 27px; border-radius: 50%; background: var(--navy); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; }
+.route-stop.start .n { background: var(--success); }
+.route-stop .meta { flex: 1; min-width: 0; }
+.route-stop .sid { font-weight: 700; font-size: 13px; }
+.route-stop .sub { font-size: 12px; color: var(--muted); }
+.route-stop .km { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
 
-/* CARDS */
-.stats-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-}
+.muted-empty { color: var(--muted); font-style: italic; font-size: 13px; padding: 14px 0; }
+.skeleton { color: var(--muted); font-size: 13px; }
 
-.card {
-  background: #ffffff;
-  border: 1px solid #dee2e6;
-  border-radius: 6px;
-  padding: 20px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+@media (max-width: 1050px) {
+  .grid, .charts-row, .form-row { grid-template-columns: 1fr; }
+  .container { padding: 20px; }
+  .header { padding: 16px 20px 0; }
 }
-
-.card h3 {
-  font-size: 12px;
-  color: #6c757d;
-  font-weight: 700;
-  margin-bottom: 8px;
-  text-transform: uppercase;
-}
-
-.card .value {
-  font-size: 28px;
-  font-weight: 700;
-  color: #212529;
-  margin-bottom: 4px;
-}
-
-.card .label {
-  font-size: 13px;
-  color: #6c757d;
-}
-
-/* Map area */
-.map-container {
-  background: #ffffff;
-  border: 1px solid #dee2e6;
-  border-radius: 6px;
-  padding: 24px;
-  height: 100%;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-}
-
-.section-header {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  margin-bottom: 20px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid #e9ecef;
-}
-
-.section-header h3 {
-  font-size: 16px;
-  color: #212529;
-  font-weight: 700;
-  margin: 0;
-}
-
-.section-header p {
-  font-size: 13px;
-  color: #6c757d;
-  margin: 0;
-}
-
-.map-placeholder {
-  width: 100%;
-  height: 400px;
-  background: #f8f9fa;
-  border: 1px solid #dee2e6;
-  border-radius: 4px;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-}
-
-/* Chart.js styling tweaks inside canvas */
-.eda-container {
-  background: #ffffff;
-  border: 1px solid #dee2e6;
-  border-radius: 6px;
-  padding: 24px;
-  margin-top: 24px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-}
-
-.charts-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 24px;
-  height: 250px;
-}
-
-/* Logout button */
-.logout-btn {
-  position: fixed;
-  bottom: 24px;
-  right: 32px;
-  background: #ffffff;
-  border: 1px solid #dc3545;
-  color: #dc3545;
-  padding: 8px 16px;
-  border-radius: 4px;
-  font-size: 13px;
-  font-weight: bold;
-  cursor: pointer;
-  text-decoration: none;
-  transition: all 0.2s;
-  z-index: 100;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.logout-btn:hover {
-  background: #dc3545;
-  color: #ffffff;
-}
-
-/* Form Styles */
-.form-group {
-  margin-bottom: 16px;
-}
-.form-group label {
-  display: block;
-  margin-bottom: 6px;
-  color: #495057;
-  font-weight: bold;
-  font-size: 13px;
-}
-.form-group input {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #ced4da;
-  border-radius: 4px;
-  font-size: 14px;
-}
-.btn-primary {
-  background: #0056b3;
-  color: #ffffff;
-  border: none;
-  padding: 12px 24px;
-  font-weight: bold;
-  border-radius: 4px;
-  cursor: pointer;
-  width: 100%;
-  transition: background 0.2s;
-}
-.btn-primary:hover {
-  background: #004494;
-}
-
-/* RESPONSIVE DESIGN */
-@media (max-width: 1024px) {
-  .grid {
-    grid-template-columns: 1fr;
-  }
-  .charts-row {
-    grid-template-columns: 1fr;
-    height: auto;
-  }
-  .charts-row > div {
-    height: 250px;
-  }
-  .map-placeholder {
-    height: 300px;
-  }
-}
-
-@media (max-width: 768px) {
-  .stats-grid {
-    grid-template-columns: 1fr;
-  }
-  .card[style] {
-    grid-column: span 1 !important;
-  }
-  .title-row {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-  .tabs {
-    gap: 16px;
-  }
+@media (max-width: 620px) {
+  .stats-grid { grid-template-columns: 1fr; }
+  .span-2 { grid-column: span 1; }
 }
 </style>
 </head>
 <body>
 
-<div class="header">
+<header class="header">
   <div class="title-row">
     <div class="title-main">
-      <h1>CHICAGO POLICE DEPARTMENT</h1>
-      <h2>Crime Intelligence System · v1.0</h2>
+      <h1>SMART POLICING PORTAL</h1>
+      <h2>Sector risk assessment and patrol planning</h2>
     </div>
     <div class="status-badge">
-      <span class="records">5,712,482 Records Indexed</span>
-      <div class="badge">SYSTEM ONLINE</div>
-      <div style="font-weight: 600;">Officer: <%= user.name %></div>
+      <span class="records" id="record-count">Loading dataset…</span>
+      <span class="badge" id="engine-badge">CHECKING ENGINE</span>
+      <span>Signed in: <strong><%= user.name %></strong></span>
+      <form class="logout-form" action="/logout" method="POST">
+        <button class="logout-btn" type="submit">Sign out</button>
+      </form>
     </div>
   </div>
-  <div class="tabs">
-    <div class="tab active" data-target="tab-overview">Dashboard Overview</div>
-    <div class="tab" data-target="tab-crimemap">Geospatial Intelligence</div>
-    <div class="tab" data-target="tab-routing">Patrol Optimizer</div>
-    <div class="tab" data-target="tab-performance">System Diagnostics</div>
-    <div class="tab" data-target="tab-predictions">Risk Assessor</div>
-  </div>
-</div>
+  <nav class="tabs">
+    <button class="tab active" data-target="tab-overview">Overview</button>
+    <button class="tab" data-target="tab-map">Incident Map</button>
+    <button class="tab" data-target="tab-routing">Patrol Optimiser</button>
+    <button class="tab" data-target="tab-assessor">Risk Assessor</button>
+    <button class="tab" data-target="tab-model">Model Card</button>
+  </nav>
+</header>
 
 <div class="container">
-  
-  <!-- TAB CONTENT: OVERVIEW -->
-  <div id="tab-overview" class="tab-content active-content">
-    
-    <!-- Actionable Header Alert -->
-    <div style="background: #e2e3e5; border-left: 4px solid #003366; padding: 16px; margin-bottom: 24px; border-radius: 4px;">
-      <strong>Commander's Briefing:</strong> The intelligence system has identified <strong>598</strong> high-risk sectors requiring increased patrol presence. Peak activity is projected between 20:00 and 02:00.
-    </div>
+
+  <!-- ============================ OVERVIEW ============================ -->
+  <section id="tab-overview" class="tab-content active-content">
+    <div class="notice" id="briefing">Loading the current sector assessment…</div>
 
     <div class="grid">
-      <!-- LEFT COLUMN: STATS -->
-      <div>
-        <div class="stats-grid">
-          <div class="card" style="grid-column: span 2; border-left: 4px solid #0d6efd;">
-            <h3>Historical Database</h3>
-            <div class="value">5,712,482</div>
-            <div class="label">Total verified incidents analyzed</div>
-          </div>
+      <div class="stats-grid">
+        <div class="card span-2" style="border-left: 4px solid var(--accent);">
+          <h3>Incidents in dataset</h3>
+          <div class="value" id="stat-incidents">—</div>
+          <div class="label" id="stat-incidents-label">Records the models were built on</div>
+        </div>
 
-          <div class="card" style="grid-column: span 2; border-left: 4px solid #dc3545;">
-            <h3>Active Hotspot Zones</h3>
-            <div class="value">12,842</div>
-            <div class="label">Sectors requiring immediate patrol</div>
-          </div>
+        <div class="card span-2" style="border-left: 4px solid var(--danger);">
+          <h3>Sectors flagged as hotspots</h3>
+          <div class="value" id="stat-hotspots">—</div>
+          <div class="label" id="stat-hotspots-label">Scored at or above 0.50 probability</div>
+        </div>
 
-          <div class="card" style="border-left: 4px solid #fd7e14;">
-            <h3>City Threat Level</h3>
-            <div class="value" style="font-size: 22px;">ELEVATED</div>
-            <div class="label">Based on predictive volume</div>
-          </div>
+        <div class="card" style="border-left: 4px solid var(--warning);">
+          <h3>High risk</h3>
+          <div class="value small" id="stat-high">—</div>
+          <div class="label">Probability ≥ 0.75</div>
+        </div>
 
-          <div class="card" style="border-left: 4px solid #198754;">
-            <h3>Peak Activity Shift</h3>
-            <div class="value" style="font-size: 22px;">20:00-02:00</div>
-            <div class="label">Maximum deployment recommended</div>
-          </div>
+        <div class="card" style="border-left: 4px solid var(--success);">
+          <h3>Sectors mapped</h3>
+          <div class="value small" id="stat-sectors">—</div>
+          <div class="label" id="stat-grid-label">City grid cells</div>
+        </div>
 
-          <div class="card" style="grid-column: span 2; border-left: 4px solid #6f42c1;">
-            <h3>Primary Offense Trend</h3>
-            <div class="value" style="font-size: 22px;">Theft & Battery</div>
-            <div class="label">Most frequent crimes in hotspots</div>
-          </div>
+        <div class="card span-2" style="border-left: 4px solid var(--navy);">
+          <h3>Busiest single sector</h3>
+          <div class="value small" id="stat-busiest">—</div>
+          <div class="label">Highest recorded incident count in one sector</div>
         </div>
       </div>
 
-      <!-- RIGHT COLUMN: SCATTER MAP -->
-      <div>
-        <div class="map-container">
-          <div class="section-header">
-            <h3>Live Density Snapshot</h3>
-            <p>Red indicates immediate intervention areas</p>
-          </div>
-          <div class="map-placeholder">
-            <canvas id="mapChart"></canvas>
-          </div>
+      <div class="panel">
+        <div class="section-header">
+          <h3>Modelled risk across the city</h3>
+          <p>Every mapped sector scored by the hotspot classifier.</p>
         </div>
+        <div class="chart-box"><canvas id="riskChart"></canvas></div>
+        <div class="provenance" id="agreement-note">Loading model agreement…</div>
       </div>
     </div>
 
-    <!-- BOTTOM: EDA OVERVIEW -->
-    <div class="eda-container">
+    <div class="panel">
       <div class="section-header">
-        <h3>Strategic Deployment Data (Temporal Trends)</h3>
+        <h3>Highest-risk sectors right now</h3>
+        <p>Ranked by classifier probability, with the incident count actually recorded in each.</p>
       </div>
-      <div class="charts-row">
-        <div style="display: flex; flex-direction: column; height: 100%;">
-          <h4 style="font-size: 13px; color: #495057; margin-bottom: 8px; text-align: center;">Incident Frequency by Shift</h4>
-          <div style="position: relative; flex: 1; min-height: 0;">
-            <canvas id="chart1"></canvas>
-          </div>
-        </div>
-        <div style="display: flex; flex-direction: column; height: 100%;">
-          <h4 style="font-size: 13px; color: #495057; margin-bottom: 8px; text-align: center;">Weekly Patrol Demand</h4>
-          <div style="position: relative; flex: 1; min-height: 0;">
-            <canvas id="chart2"></canvas>
-          </div>
-        </div>
-        <div style="display: flex; flex-direction: column; height: 100%;">
-          <h4 style="font-size: 13px; color: #495057; margin-bottom: 8px; text-align: center;">Multi-Year Volume Trends</h4>
-          <div style="position: relative; flex: 1; min-height: 0;">
-            <canvas id="chart3"></canvas>
-          </div>
-        </div>
-      </div>
+      <div class="chart-box" style="height: 320px;"><canvas id="topSectorsChart"></canvas></div>
     </div>
-  </div>
+  </section>
 
-  <!-- TAB CONTENT: CRIME MAP -->
-  <div id="tab-crimemap" class="tab-content">
-    <div class="card" style="margin-bottom: 24px; border-left: 4px solid #0056b3;">
-      <h3 style="color: #212529; font-size: 16px;">Geospatial Intelligence Map</h3>
-      <p style="color: #6c757d; font-size: 14px; margin-top: 8px; line-height: 1.5;">
-        This interactive map visualizes historical incident density across the city grid. 
-        <strong>Red zones</strong> indicate historically high-volume incident areas (hotspots) where crime rates exceed typical sector thresholds. 
-        Use this historical density data in conjunction with the Risk Assessor tool to proactively allocate patrol resources and plan strategic interventions.
-      </p>
+  <!-- ============================ MAP ============================ -->
+  <section id="tab-map" class="tab-content">
+    <div class="notice">
+      <strong>Incident density.</strong> Warmer colours mark sectors with more recorded incidents
+      across the full history in the dataset. This is the observed record, not a forecast — use the
+      Risk Assessor for modelled output.
     </div>
-    <div class="map-container" style="padding: 0; overflow: hidden; height: 70vh; border: 1px solid #dee2e6; border-radius: 6px;">
-      <iframe src="/crime-dashboard" width="100%" height="100%" style="border: none;"></iframe>
+    <div class="map-frame">
+      <iframe src="/density-map" title="Incident density map" loading="lazy"></iframe>
     </div>
-  </div>
+  </section>
 
-  <!-- TAB CONTENT: SYSTEM DIAGNOSTICS -->
-  <div id="tab-performance" class="tab-content">
-    <div class="card" style="margin-bottom: 24px; border-left: 4px solid #0dcaf0;">
-      <h3>Predictive Engine Status</h3>
-      <div class="value" id="model-health" style="font-size: 20px;">Connecting to Endpoint...</div>
-    </div>
+  <!-- ============================ ROUTING ============================ -->
+  <section id="tab-routing" class="tab-content">
     <div class="grid">
-      <div class="card" style="border-left: 4px solid #198754;">
-        <h3>Classification Model (ROC-AUC)</h3>
-        <div class="value">0.9902</div>
-        <div class="label">Identifies high-risk hotspot probability (XGBoost)</div>
+      <div class="panel">
+        <div class="section-header">
+          <h3>Patrol route optimiser</h3>
+          <p>Shortest sequence through the highest-risk sectors.</p>
+        </div>
+        <p style="font-size: 13px; color: var(--muted); margin-bottom: 14px;">
+          Stops are the sectors the classifier currently ranks highest. The order is solved as a
+          travelling-salesman problem with Google OR-Tools over great-circle distances.
+        </p>
+
+        <div class="form-group">
+          <label for="stop-count">Number of stops</label>
+          <input id="stop-count" type="number" min="3" max="20" value="8" />
+        </div>
+        <div class="form-group">
+          <label for="round-trip">Return to start</label>
+          <select id="round-trip">
+            <option value="true" selected>Yes — closed patrol loop</option>
+            <option value="false">No — open path</option>
+          </select>
+        </div>
+
+        <button id="optimize-btn" class="btn">Generate route</button>
+
+        <div id="route-summary" class="provenance" style="display:none;"></div>
+        <div id="route-list" class="route-list">
+          <div class="muted-empty">No route generated yet.</div>
+        </div>
       </div>
-      <div class="card" style="border-left: 4px solid #6f42c1;">
-        <h3>Regression Model (R² Score)</h3>
-        <div class="value">0.9324</div>
-        <div class="label">Estimates exact incident counts (XGBoost)</div>
+
+      <div class="panel">
+        <div class="section-header">
+          <h3>Route map</h3>
+          <p>Green marks the first stop.</p>
+        </div>
+        <div id="routingMap"></div>
       </div>
     </div>
-  </div>
+  </section>
 
-  <!-- TAB CONTENT: LOG PREDICTIONS -->
-  <div id="tab-predictions" class="tab-content">
-    <div class="card" style="max-width: 600px; margin: 0 auto; border-top: 4px solid #0056b3;">
-      <h3 style="color: #212529; font-size: 18px;">Risk Assessor Tool</h3>
-      <p style="color: #6c757d; font-size: 13px; margin-bottom: 20px;">Input coordinates to evaluate localized risk factors and projected incident volume.</p>
-      
-      <div class="form-group">
-        <label>Latitude</label>
-        <input type="text" id="lat-input" placeholder="e.g. 41.85" />
-      </div>
-      
-      <div class="form-group" style="margin-bottom: 24px;">
-        <label>Longitude</label>
-        <input type="text" id="lon-input" placeholder="e.g. -87.65" />
-      </div>
-      
-      <button id="predict-btn" class="btn-primary">EVALUATE SECTOR RISK</button>
-
-      <div id="predict-result" style="margin-top: 24px; font-weight: bold; font-size: 15px; padding: 16px; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px; display: none;"></div>
-    </div>
-  </div>
-
-  <!-- TAB CONTENT: ROUTING -->
-  <div id="tab-routing" class="tab-content">
+  <!-- ============================ ASSESSOR ============================ -->
+  <section id="tab-assessor" class="tab-content">
     <div class="grid">
-      <div>
-        <div class="card" style="border-left: 4px solid #fd7e14; height: 100%;">
-          <h3>Patrol Route Optimizer</h3>
-          <p style="color: #6c757d; font-size: 13px; margin-bottom: 16px; line-height: 1.5;">
-            Uses Google OR-Tools to solve the Traveling Salesperson Problem (TSP) across active hotspots. Generates the most efficient patrol sequence to minimize response time.
+      <div class="panel">
+        <div class="section-header">
+          <h3>Sector risk assessor</h3>
+          <p>Score any point in the city.</p>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="lat-input">Latitude</label>
+            <input id="lat-input" type="number" step="0.001" value="41.885" />
+          </div>
+          <div class="form-group">
+            <label for="lon-input">Longitude</label>
+            <input id="lon-input" type="number" step="0.001" value="-87.630" />
+          </div>
+        </div>
+
+        <details class="advanced">
+          <summary>Override sector activity profile</summary>
+          <p style="font-size: 12.5px; color: var(--muted); margin: 8px 0 12px;">
+            The models are driven mainly by a sector's activity history, not its coordinates. Values
+            left blank fall back to what is on record for the sector, or to a city-wide median where
+            nothing is recorded.
           </p>
-          <button id="optimize-btn" class="btn-primary" style="margin-bottom: 20px;">GENERATE OPTIMAL ROUTE</button>
-          
-          <div id="route-list" style="max-height: 350px; overflow-y: auto; font-size: 13px;">
-            <!-- Waypoints will populate here -->
-            <div style="color: #adb5bd; font-style: italic;">Awaiting route generation...</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="peak-input">Peak-hour incidents</label>
+              <input id="peak-input" type="number" min="0" step="1" placeholder="from record" />
+              <p class="hint">Strongest single driver (34% of classifier weight).</p>
+            </div>
+            <div class="form-group">
+              <label for="unique-input">Distinct offence types</label>
+              <input id="unique-input" type="number" min="0" step="0.5" placeholder="23.5" />
+            </div>
+            <div class="form-group">
+              <label for="lastyear-input">Incidents last year</label>
+              <input id="lastyear-input" type="number" min="0" step="1" placeholder="10.5" />
+            </div>
+            <div class="form-group">
+              <label for="twoyear-input">Incidents two years ago</label>
+              <input id="twoyear-input" type="number" min="0" step="1" placeholder="18.5" />
+            </div>
+            <div class="form-group">
+              <label for="arrest-input">Arrest rate</label>
+              <input id="arrest-input" type="number" min="0" max="1" step="0.01" placeholder="0.26" />
+            </div>
+            <div class="form-group">
+              <label for="domestic-input">Domestic rate</label>
+              <input id="domestic-input" type="number" min="0" max="1" step="0.01" placeholder="0.13" />
+            </div>
+          </div>
+        </details>
+
+        <button id="predict-btn" class="btn">Assess sector</button>
+
+        <div id="predict-result" class="result">
+          <div class="result-head" id="result-head">
+            <div class="rl">CLASSIFICATION</div>
+            <div class="rv" id="result-verdict"></div>
+          </div>
+          <div class="result-body">
+            <div class="metric-row"><span class="k">Sector</span><span class="v" id="r-sector"></span></div>
+            <div class="metric-row"><span class="k">Hotspot probability</span><span class="v" id="r-prob"></span></div>
+            <div class="metric-row"><span class="k">Predicted incidents</span><span class="v" id="r-pred"></span></div>
+            <div class="metric-row"><span class="k">Recorded in this sector</span><span class="v" id="r-obs"></span></div>
+            <div class="metric-row"><span class="k">Confidence</span><span class="v" id="r-conf"></span></div>
+            <div id="r-notes"></div>
           </div>
         </div>
       </div>
-      <div>
-        <div class="map-container" style="height: 500px;">
-          <div class="section-header">
-            <h3>Optimized Patrol Path</h3>
-            <p>Visualizing the calculated TSP route</p>
-          </div>
-          <div class="map-placeholder" style="height: 400px; padding: 0;">
-            <div id="routingMap" style="width: 100%; height: 100%; border-radius: 4px;"></div>
-          </div>
+
+      <div class="panel">
+        <div class="section-header">
+          <h3>What went into this assessment</h3>
+          <p>Every feature the models received, and where each value came from.</p>
+        </div>
+        <div id="prov-table"><div class="muted-empty">Run an assessment to see the inputs.</div></div>
+        <div class="provenance">
+          <strong>observed</strong> — measured from the incident record ·
+          <strong>derived</strong> — computed from observed values ·
+          <strong>default</strong> — city-wide median ·
+          <strong>override</strong> — entered above
         </div>
       </div>
     </div>
-  </div>
+  </section>
+
+  <!-- ============================ MODEL CARD ============================ -->
+  <section id="tab-model" class="tab-content">
+    <div class="grid">
+      <div class="stats-grid">
+        <div class="card span-2" style="border-left: 4px solid var(--accent);">
+          <h3>Prediction engine</h3>
+          <div class="value small" id="engine-status">Checking…</div>
+          <div class="label" id="engine-detail"></div>
+        </div>
+        <div class="card span-2" style="border-left: 4px solid var(--success);">
+          <h3>Hotspot classifier</h3>
+          <div class="value small" id="clf-algo">—</div>
+          <div class="label" id="clf-detail"></div>
+        </div>
+        <div class="card span-2" style="border-left: 4px solid #6f42c1;">
+          <h3>Volume regressor</h3>
+          <div class="value small" id="reg-algo">—</div>
+          <div class="label" id="reg-detail"></div>
+        </div>
+        <div class="card span-2" style="border-left: 4px solid var(--warning);">
+          <h3>Reported training scores</h3>
+          <div class="value small" id="metrics-value">—</div>
+          <div class="label" id="metrics-note"></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="panel">
+          <div class="section-header">
+            <h3>What actually drives the prediction</h3>
+            <p>Feature importances read from the trained estimators.</p>
+          </div>
+          <div class="chart-box" style="height: 380px;"><canvas id="importanceChart"></canvas></div>
+        </div>
+
+        <div class="panel">
+          <div class="section-header"><h3>Limitations</h3></div>
+          <ul id="limitations" style="font-size: 13.5px; color: var(--muted); padding-left: 18px;">
+            <li class="skeleton">Loading…</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
 
 </div>
 
-<a href="/logout" class="logout-btn">Log Out Session</a>
-
 <script>
-// --- TAB SWITCHING LOGIC ---
-const tabs = document.querySelectorAll('.tab');
-const tabContents = document.querySelectorAll('.tab-content');
+(function () {
+  'use strict';
 
-tabs.forEach(tab => {
-  tab.addEventListener('click', () => {
-    tabs.forEach(t => t.classList.remove('active'));
-    tabContents.forEach(c => c.classList.remove('active-content'));
-    tab.classList.add('active');
-    const targetId = tab.getAttribute('data-target');
-    document.getElementById(targetId).classList.add('active-content');
-  });
-});
+  var PALETTE = {
+    navy: '#0b2545', accent: '#2f6fed', danger: '#c0392b',
+    warning: '#d97706', success: '#1a7f4b', muted: '#adb5bd', purple: '#6f42c1'
+  };
 
-// --- MODEL API INTEGRATION ---
-fetch('/model/health')
-  .then(res => res.json())
-  .then(data => {
-    const el = document.getElementById('model-health');
-    // FIXED: The Python API returns "healthy", not "ok"
-    if(data.status === 'healthy' || data.status === 'ok') {
-      el.innerHTML = '🟢 Engine Online & Operational';
-      el.style.color = '#198754';
-    } else {
-      el.innerHTML = '🔴 Engine Unresponsive';
-      el.style.color = '#dc3545';
-    }
-  })
-  .catch(err => {
-    document.getElementById('model-health').innerHTML = '🔴 Connection Failed';
-    document.getElementById('model-health').style.color = '#dc3545';
-  });
+  Chart.defaults.color = '#495057';
+  Chart.defaults.font.family = "'Helvetica Neue', Helvetica, Arial, sans-serif";
 
-// Run Prediction
-document.getElementById('predict-btn').addEventListener('click', () => {
-  const lat = document.getElementById('lat-input').value;
-  const lon = document.getElementById('lon-input').value;
-  const resEl = document.getElementById('predict-result');
-  
-  resEl.style.display = 'block';
+  var charts = {};
+  var nf = new Intl.NumberFormat('en-US');
 
-  if(!lat || !lon) {
-    resEl.innerHTML = '⚠️ Please enter both coordinates.';
-    resEl.style.color = '#dc3545';
-    return;
-  }
-  
-  resEl.innerHTML = 'Processing sector data...';
-  resEl.style.color = '#6c757d';
+  function fmt(n) { return (n === null || n === undefined) ? '—' : nf.format(n); }
+  function el(id) { return document.getElementById(id); }
 
-  fetch(`/model/predict?lat=${lat}&lon=${lon}`)
-    .then(res => res.json())
-    .then(data => {
-      if(data.error) {
-        resEl.innerHTML = 'System Error: ' + data.error;
-        resEl.style.color = '#dc3545';
-      } else {
-        const hotspotColor = data.is_hotspot ? '#dc3545' : '#198754';
-        const hotspotText = data.is_hotspot ? 'ELEVATED RISK (HOTSPOT)' : 'STANDARD RISK';
-        
-        resEl.innerHTML = `
-          <div style="color: #212529; margin-bottom: 8px;">Assessment Results:</div>
-          <div style="color: ${hotspotColor}; margin-bottom: 4px;">Classification: ${hotspotText}</div>
-          <div style="color: #0d6efd;">Projected Incidents: ${Math.round(data.predicted_crimes)}</div>
-        `;
-      }
-    })
-    .catch(err => {
-      resEl.innerHTML = 'Failed to reach prediction endpoint.';
-      resEl.style.color = '#dc3545';
+  function getJSON(url) {
+    return fetch(url, { headers: { Accept: 'application/json' } }).then(function (res) {
+      return res.json().then(function (body) {
+        if (!res.ok) throw new Error(body.detail || body.error || ('Request failed: ' + res.status));
+        return body;
+      }).catch(function (err) {
+        if (err instanceof SyntaxError) throw new Error('Unexpected response from the server.');
+        throw err;
+      });
     });
-});
-
-// --- CHART.JS CONFIGURATION ---
-Chart.defaults.color = '#495057';
-Chart.defaults.font.family = "'Helvetica Neue', Helvetica, Arial, sans-serif";
-Chart.defaults.scale.grid.color = '#e9ecef';
-
-const mapData = [];
-// Generate clusters to represent actual city density hotspots
-const clusterCenters = [
-  {lat: 41.88, lng: -87.63}, // Loop
-  {lat: 41.78, lng: -87.67}, // Englewood
-  {lat: 41.87, lng: -87.71}, // Harrison
-  {lat: 41.75, lng: -87.65}, // Gresham
-  {lat: 41.94, lng: -87.66}  // Town Hall
-];
-
-for(let i=0; i<1200; i++) {
-  const center = clusterCenters[Math.floor(Math.random() * clusterCenters.length)];
-  const lat = center.lat + (Math.random() - 0.5) * 0.12;
-  const lng = center.lng + (Math.random() - 0.5) * 0.12;
-  
-  // Basic Chicago land check for scatter plot
-  if (lng < -87.60 || (lat < 41.75 && lng < -87.53)) {
-    mapData.push({ x: lng, y: lat, v: Math.random() });
   }
-}
 
-new Chart(document.getElementById('mapChart'), {
-  type: 'scatter',
-  data: {
-    datasets: [{
-      data: mapData,
-      backgroundColor: (ctx) => {
-        const v = ctx.raw ? ctx.raw.v : 0;
-        // Density visualization colors
-        return v > 0.8 ? 'rgba(220, 53, 69, 0.7)' : (v > 0.5 ? 'rgba(253, 126, 20, 0.5)' : 'rgba(13, 110, 253, 0.3)');
-      },
-      pointRadius: 4,
-      hoverRadius: 6
-    }]
-  },
-  options: {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: { legend: { display: false }, tooltip: { enabled: false } },
-    scales: {
-      x: { title: { display: true, text: 'Longitude' } },
-      y: { title: { display: true, text: 'Latitude' } }
-    }
+  function postJSON(url, payload) {
+    return fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      body: JSON.stringify(payload)
+    }).then(function (res) {
+      return res.json().then(function (body) {
+        if (!res.ok) throw new Error(body.detail || body.error || ('Request failed: ' + res.status));
+        return body;
+      }).catch(function (err) {
+        if (err instanceof SyntaxError) throw new Error('Unexpected response from the server.');
+        throw err;
+      });
+    });
   }
-});
 
-new Chart(document.getElementById('chart1'), {
-  type: 'bar',
-  data: {
-    labels: Array.from({length: 24}, (_, i) => i + ':00'),
-    datasets: [{
-      label: 'Crimes by Hour',
-      // Data aligned with 20:00 - 02:00 peak window
-      data: [34,32,30,22,15,10,8,12,14,16,18,20,22,24,25,26,27,28,30,32,35,38,37,36],
-      backgroundColor: '#0d6efd'
-    }]
-  },
-  options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
-});
+  // ----------------------------------------------------------------- tabs
+  var tabs = document.querySelectorAll('.tab');
+  var panes = document.querySelectorAll('.tab-content');
 
-new Chart(document.getElementById('chart2'), {
-  type: 'bar',
-  data: {
-    labels: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
-    datasets: [{
-      label: 'Crimes by Day',
-      data: [120, 125, 122, 130, 150, 160, 140],
-      backgroundColor: '#198754'
-    }]
-  },
-  options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
-});
+  Array.prototype.forEach.call(tabs, function (tab) {
+    tab.addEventListener('click', function () {
+      Array.prototype.forEach.call(tabs, function (t) { t.classList.remove('active'); });
+      Array.prototype.forEach.call(panes, function (p) { p.classList.remove('active-content'); });
+      tab.classList.add('active');
+      var pane = el(tab.getAttribute('data-target'));
+      if (pane) pane.classList.add('active-content');
+      if (tab.getAttribute('data-target') === 'tab-routing') initRoutingMap();
+    });
+  });
 
-new Chart(document.getElementById('chart3'), {
-  type: 'line',
-  data: {
-    labels: ['2019','2020','2021','2022','2023'],
-    datasets: [{
-      label: 'Crimes by Year',
-      data: [350000, 280000, 290000, 295000, 285000],
-      borderColor: '#dc3545',
-      backgroundColor: 'rgba(220, 53, 69, 0.1)',
-      fill: true,
-      tension: 0.4
-    }]
-  },
-  options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
-});
+  // ------------------------------------------------------------- overview
+  function loadOverview() {
+    getJSON('/api/stats').then(function (s) {
+      var d = s.dataset, o = s.operational, m = s.models;
 
-// --- ROUTING LOGIC ---
-let routingMap = null;
-let routeLayers = L.layerGroup();
+      el('record-count').textContent = fmt(d.total_incidents) + ' incidents indexed';
+      el('stat-incidents').textContent = fmt(d.total_incidents);
+      el('stat-incidents-label').textContent =
+        'Across ' + fmt(d.sectors) + ' sectors of ' + d.grid_resolution_degrees + '°';
+      el('stat-hotspots').textContent = fmt(o.hotspots_flagged);
+      el('stat-hotspots-label').textContent =
+        Math.round(o.share_of_city_flagged * 1000) / 10 + '% of mapped sectors';
+      el('stat-high').textContent = fmt(o.high_risk_sectors);
+      el('stat-sectors').textContent = fmt(d.sectors);
+      el('stat-grid-label').textContent = d.grid_resolution_degrees + '° grid cells';
+      el('stat-busiest').textContent = fmt(d.busiest_sector_incidents);
 
-function initRoutingMap() {
-  if (routingMap) return;
-  // Initialize map centered on Chicago
-  routingMap = L.map('routingMap').setView([41.8781, -87.6298], 11);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; OpenStreetMap contributors'
-  }).addTo(routingMap);
-  routeLayers.addTo(routingMap);
-}
+      el('briefing').innerHTML =
+        '<strong>Current assessment.</strong> The classifier flags <strong>' + fmt(o.hotspots_flagged) +
+        '</strong> of ' + fmt(d.sectors) + ' mapped sectors as hotspots, <strong>' +
+        fmt(o.high_risk_sectors) + '</strong> of them at high risk. Median sector on record holds ' +
+        fmt(d.median_sector_incidents) + ' incidents; the busiest holds ' +
+        fmt(d.busiest_sector_incidents) + '.';
 
-// Initialize map when the tab is clicked
-document.querySelector('[data-target="tab-routing"]').addEventListener('click', () => {
-  setTimeout(initRoutingMap, 100); // Small timeout to ensure div is visible
-});
+      el('clf-algo').textContent = m.classifier.algorithm;
+      el('clf-detail').textContent =
+        m.classifier.n_estimators + ' trees, max depth ' + m.classifier.max_depth +
+        ', ' + m.classifier.n_features + ' features, class weight ' + m.classifier.class_weight;
+      el('reg-algo').textContent = m.regressor.algorithm;
+      el('reg-detail').textContent =
+        m.regressor.n_estimators + ' rounds, max depth ' + m.regressor.max_depth +
+        ', objective ' + m.regressor.objective;
 
-document.getElementById('optimize-btn').addEventListener('click', () => {
-  const btn = document.getElementById('optimize-btn');
-  const listEl = document.getElementById('route-list');
-  
-  initRoutingMap(); // Ensure map is ready
+      var tm = m.training_metrics;
+      el('metrics-value').textContent =
+        tm.classifier.metric + ' ' + tm.classifier.value + ' · ' +
+        tm.regressor.metric + ' ' + tm.regressor.value;
+      el('metrics-note').textContent =
+        'Recorded at ' + tm.measured_at + '. This service cannot recompute them — the evaluation split is not shipped with it.';
+    }).catch(function (err) {
+      el('briefing').className = 'notice error';
+      el('briefing').textContent = 'Could not load portal statistics: ' + err.message;
+      el('record-count').textContent = 'Dataset unavailable';
+    });
 
-  btn.innerText = 'CALCULATING TSP...';
-  btn.disabled = true;
-  listEl.innerHTML = '<div style="color: #6c757d; font-style: italic;">Computing optimal patrol path through hotspots...</div>';
+    getJSON('/api/risk-distribution').then(function (r) {
+      charts.risk = new Chart(el('riskChart'), {
+        type: 'bar',
+        data: {
+          labels: r.histogram.map(function (h) { return h.range; }),
+          datasets: [{
+            label: 'Sectors',
+            data: r.histogram.map(function (h) { return h.sectors; }),
+            backgroundColor: r.histogram.map(function (h) {
+              var low = parseFloat(h.range.split('-')[0]);
+              return low >= 0.75 ? PALETTE.danger : (low >= 0.5 ? PALETTE.warning : PALETTE.accent);
+            }),
+            borderRadius: 3
+          }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: { callbacks: { title: function (i) { return 'Probability ' + i[0].label; } } }
+          },
+          scales: {
+            x: { title: { display: true, text: 'Hotspot probability' }, grid: { display: false } },
+            y: { title: { display: true, text: 'Sectors' }, beginAtZero: true }
+          }
+        }
+      });
 
-  // Clear previous route
-  routeLayers.clearLayers();
+      var a = r.agreement_with_record;
+      el('agreement-note').innerHTML =
+        'Against the recorded incident totals, modelled hotspot probability correlates <strong>' +
+        a.hotspot_probability_vs_observed + '</strong> and predicted volume correlates <strong>' +
+        a.predicted_volume_vs_observed + '</strong> (Pearson, all ' +
+        fmt(r.risk_bands.HIGH + r.risk_bands.MEDIUM + r.risk_bands.LOW) + ' sectors).';
+    }).catch(function (err) {
+      el('agreement-note').textContent = 'Risk distribution unavailable: ' + err.message;
+    });
 
-  // Use land-based seed coordinates (Police Districts/Sectors) to avoid water
-  const seeds = [
-    {lat: 41.88, lon: -87.63}, // Loop/Near North
-    {lat: 41.85, lon: -87.65}, // Near West
-    {lat: 41.81, lon: -87.63}, // Wentworth
-    {lat: 41.78, lon: -87.67}, // Englewood
-    {lat: 41.75, lon: -87.65}, // Gresham
-    {lat: 41.87, lon: -87.71}, // Harrison
-    {lat: 41.94, lon: -87.66}, // Town Hall
-    {lat: 41.92, lon: -87.76}, // Grand Central
-    {lat: 41.76, lon: -87.60}, // Grand Crossing
-    {lat: 41.71, lon: -87.58}, // South Chicago (safe inland)
-    {lat: 41.83, lon: -87.62}, // Oakland
-    {lat: 41.97, lon: -87.70}  // Foster/Albany Park
+    getJSON('/api/hotspots?limit=12').then(function (h) {
+      charts.top = new Chart(el('topSectorsChart'), {
+        type: 'bar',
+        data: {
+          labels: h.hotspots.map(function (s) { return s.sector_id.replace('CHI-', ''); }),
+          datasets: [
+            {
+              label: 'Recorded incidents',
+              data: h.hotspots.map(function (s) { return s.observed_incidents; }),
+              backgroundColor: PALETTE.navy, borderRadius: 3
+            },
+            {
+              label: 'Predicted incidents',
+              data: h.hotspots.map(function (s) { return s.predicted_incidents; }),
+              backgroundColor: PALETTE.accent, borderRadius: 3
+            }
+          ]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { position: 'bottom' } },
+          scales: {
+            x: { grid: { display: false }, title: { display: true, text: 'Sector' } },
+            y: { beginAtZero: true, title: { display: true, text: 'Incidents' } }
+          }
+        }
+      });
+    }).catch(function () { /* chart simply stays empty */ });
+  }
+
+  // ------------------------------------------------------------ model card
+  function loadModelCard() {
+    getJSON('/api/model-card').then(function (mc) {
+      var top = mc.classifier_importances.slice(0, 10);
+      var regMap = {};
+      mc.regressor_importances.forEach(function (r) { regMap[r.feature] = r.importance; });
+
+      charts.importance = new Chart(el('importanceChart'), {
+        type: 'bar',
+        data: {
+          labels: top.map(function (f) { return f.feature; }),
+          datasets: [
+            { label: 'Classifier', data: top.map(function (f) { return f.importance; }),
+              backgroundColor: PALETTE.success, borderRadius: 3 },
+            { label: 'Regressor', data: top.map(function (f) { return regMap[f.feature] || 0; }),
+              backgroundColor: PALETTE.purple, borderRadius: 3 }
+          ]
+        },
+        options: {
+          indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { position: 'bottom' } },
+          scales: { x: { beginAtZero: true, title: { display: true, text: 'Importance' } },
+                    y: { grid: { display: false } } }
+        }
+      });
+
+      var ul = el('limitations');
+      ul.innerHTML = '';
+      mc.limitations.forEach(function (text) {
+        var li = document.createElement('li');
+        li.textContent = text;
+        li.style.marginBottom = '6px';
+        ul.appendChild(li);
+      });
+    }).catch(function (err) {
+      el('limitations').innerHTML = '<li>Model card unavailable: ' + err.message + '</li>';
+    });
+  }
+
+  // ---------------------------------------------------------------- health
+  function loadHealth() {
+    getJSON('/api/health').then(function (h) {
+      var ok = h.status === 'healthy';
+      var badge = el('engine-badge');
+      badge.textContent = ok ? 'ENGINE ONLINE' : 'ENGINE DEGRADED';
+      badge.className = 'badge' + (ok ? '' : ' offline');
+      el('engine-status').textContent = ok ? 'Online' : 'Degraded';
+      el('engine-detail').textContent = fmt(h.sectors_indexed) + ' sectors indexed and scored.';
+    }).catch(function (err) {
+      var badge = el('engine-badge');
+      badge.textContent = 'ENGINE UNREACHABLE';
+      badge.className = 'badge offline';
+      el('engine-status').textContent = 'Unreachable';
+      el('engine-detail').textContent = err.message;
+    });
+  }
+
+  // -------------------------------------------------------------- assessor
+  var OVERRIDE_FIELDS = [
+    ['peak-input', 'peak_hour_crimes'],
+    ['unique-input', 'unique_types'],
+    ['lastyear-input', 'crimes_last_year'],
+    ['twoyear-input', 'crimes_2yr_ago'],
+    ['arrest-input', 'arrest_rate'],
+    ['domestic-input', 'domestic_rate']
   ];
 
-  const points = [];
-  const shuffled = seeds.sort(() => 0.5 - Math.random());
-  for(let i=0; i<8; i++) {
-    const seed = shuffled[i % shuffled.length];
-    points.push({
-      lat: seed.lat + (Math.random() - 0.5) * 0.02,
-      lon: seed.lon + (Math.random() - 0.5) * 0.02
-    });
+  function renderProvenance(result) {
+    var order = Object.keys(result.features_used).sort();
+    var rows = order.map(function (name) {
+      var kind = result.feature_provenance[name] || 'default';
+      var value = result.features_used[name];
+      return '<tr><td>' + name + '</td>' +
+             '<td class="num">' + (Math.abs(value) >= 1000 ? fmt(Math.round(value)) : value) + '</td>' +
+             '<td><span class="tag tag-' + kind + '">' + kind + '</span></td></tr>';
+    }).join('');
+
+    el('prov-table').innerHTML =
+      '<table class="prov"><thead><tr><th>Feature</th><th class="num">Value</th><th>Source</th></tr></thead>' +
+      '<tbody>' + rows + '</tbody></table>';
   }
 
-  fetch('/model/optimize-route', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ points })
-  })
-  .then(res => res.json())
-  .then(data => {
-    btn.innerText = 'GENERATE OPTIMAL ROUTE';
-    btn.disabled = false;
-    
-    if(data.error) {
-      listEl.innerHTML = `<div style="color: #dc3545;">Optimizer Error: ${data.error}</div>`;
+  function renderResult(r) {
+    var box = el('predict-result');
+    var head = el('result-head');
+    var colour = r.risk_level === 'HIGH' ? PALETTE.danger
+               : (r.risk_level === 'MEDIUM' ? PALETTE.warning : PALETTE.success);
+
+    head.style.background = colour;
+    el('result-verdict').textContent =
+      r.risk_level + (r.is_hotspot ? ' — hotspot' : ' — not a hotspot');
+
+    el('r-sector').textContent = r.sector_id;
+    el('r-prob').textContent = (r.hotspot_probability * 100).toFixed(1) + '%';
+    el('r-pred').textContent = fmt(r.predicted_incidents);
+    el('r-obs').textContent = fmt(r.observed_incidents);
+    el('r-conf').textContent = r.confidence === 'low' ? 'Low' : 'Normal';
+
+    var notes = el('r-notes');
+    notes.innerHTML = '';
+    if (r.notes && r.notes.length) {
+      r.notes.forEach(function (text) {
+        var div = document.createElement('div');
+        div.className = 'notice warn';
+        div.style.margin = '12px 0 0';
+        div.style.fontSize = '13px';
+        div.textContent = text;
+        notes.appendChild(div);
+      });
+    }
+
+    box.style.display = 'block';
+    renderProvenance(r);
+  }
+
+  el('predict-btn').addEventListener('click', function () {
+    var btn = this;
+    var lat = parseFloat(el('lat-input').value);
+    var lon = parseFloat(el('lon-input').value);
+
+    if (!isFinite(lat) || !isFinite(lon)) {
+      el('prov-table').innerHTML = '<div class="notice error">Enter a valid latitude and longitude.</div>';
       return;
     }
 
-    const route = data.route;
-    const latLons = route.map(pt => [pt.lat, pt.lon]);
-
-    // 1. Plot on Map
-    const polyline = L.polyline(latLons, {color: '#dc3545', weight: 4, opacity: 0.8}).addTo(routeLayers);
-    
-    route.forEach((pt, index) => {
-      const marker = L.circleMarker([pt.lat, pt.lon], {
-        radius: 8,
-        fillColor: index === 0 ? "#198754" : "#003366", // Green for start
-        color: "#fff",
-        weight: 2,
-        opacity: 1,
-        fillOpacity: 1
-      }).addTo(routeLayers);
-      
-      marker.bindPopup(`<b>Stop ${index + 1}</b><br>Sector: CHI-${Math.floor(pt.lat*100)}-${Math.floor(Math.abs(pt.lon)*100)}`);
+    var payload = { lat: lat, lon: lon };
+    OVERRIDE_FIELDS.forEach(function (pair) {
+      var raw = el(pair[0]).value;
+      if (raw !== '' && isFinite(parseFloat(raw))) payload[pair[1]] = parseFloat(raw);
     });
 
-    routingMap.fitBounds(polyline.getBounds(), {padding: [30, 30]});
+    btn.disabled = true;
+    btn.textContent = 'Assessing…';
 
-    // 2. Build Information List
-    let html = '';
-    const now = new Date();
-    route.forEach((pt, index) => {
-      const eta = new Date(now.getTime() + index * 15 * 60000); // Mock 15 min intervals
-      const timeStr = eta.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      const sectorId = `CHI-${Math.floor(pt.lat*100)}-${Math.floor(Math.abs(pt.lon)*100)}`;
-      
-      html += `
-        <div style="padding: 12px; border-bottom: 1px solid #dee2e6; display: flex; align-items: center; gap: 12px; background: ${index === 0 ? '#f0f9ff' : 'transparent'}">
-          <div style="background: ${index === 0 ? '#198754' : '#003366'}; color: white; min-width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 12px;">${index + 1}</div>
-          <div style="flex: 1;">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-              <span style="font-weight: bold; color: #212529;">Sector ${sectorId}</span>
-              <span style="font-size: 11px; background: #e9ecef; padding: 2px 6px; border-radius: 10px; font-weight: bold;">${index === 0 ? 'START' : 'ETA: ' + timeStr}</span>
-            </div>
-            <div style="color: #6c757d; font-size: 12px; margin-top: 2px;">Dispatch Instructions: Maintain visibility for 15m.</div>
-          </div>
-        </div>
-      `;
-    });
-    listEl.innerHTML = html;
-  })
-  .catch(err => {
-    console.error(err);
-    btn.innerText = 'GENERATE OPTIMAL ROUTE';
-    btn.disabled = false;
-    listEl.innerHTML = `<div style="color: #dc3545;">Failed to connect to Optimizer Service. Check backend logs.</div>`;
+    postJSON('/api/predict', payload)
+      .then(renderResult)
+      .catch(function (err) {
+        el('predict-result').style.display = 'none';
+        el('prov-table').innerHTML = '<div class="notice error">' + err.message + '</div>';
+      })
+      .then(function () {
+        btn.disabled = false;
+        btn.textContent = 'Assess sector';
+      });
   });
-});
 
+  // --------------------------------------------------------------- routing
+  var routingMap = null;
+  var routeLayer = null;
+
+  function initRoutingMap() {
+    if (routingMap) { setTimeout(function () { routingMap.invalidateSize(); }, 60); return; }
+    routingMap = L.map('routingMap').setView([41.8781, -87.6298], 11);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors', maxZoom: 18
+    }).addTo(routingMap);
+    routeLayer = L.layerGroup().addTo(routingMap);
+    setTimeout(function () { routingMap.invalidateSize(); }, 60);
+  }
+
+  el('optimize-btn').addEventListener('click', function () {
+    var btn = this;
+    initRoutingMap();
+
+    var stops = Math.max(3, Math.min(20, parseInt(el('stop-count').value, 10) || 8));
+    var roundTrip = el('round-trip').value === 'true';
+
+    btn.disabled = true;
+    btn.textContent = 'Solving…';
+    el('route-list').innerHTML = '<div class="muted-empty">Computing the shortest sequence…</div>';
+    el('route-summary').style.display = 'none';
+    if (routeLayer) routeLayer.clearLayers();
+
+    postJSON('/api/optimize-route', { from_hotspots: stops, round_trip: roundTrip })
+      .then(function (data) {
+        var latlngs = data.stops.map(function (s) { return [s.lat, s.lon]; });
+        if (data.round_trip && latlngs.length > 1) latlngs = latlngs.concat([latlngs[0]]);
+
+        var line = L.polyline(latlngs, { color: PALETTE.danger, weight: 4, opacity: .85 }).addTo(routeLayer);
+
+        data.stops.forEach(function (s, i) {
+          L.circleMarker([s.lat, s.lon], {
+            radius: 9,
+            fillColor: i === 0 ? PALETTE.success : PALETTE.navy,
+            color: '#fff', weight: 2, opacity: 1, fillOpacity: 1
+          }).addTo(routeLayer)
+            .bindPopup('<strong>Stop ' + s.stop + '</strong><br>' + s.sector_id +
+                       '<br>' + fmt(s.observed_incidents) + ' recorded incidents');
+        });
+
+        routingMap.fitBounds(line.getBounds(), { padding: [30, 30] });
+
+        el('route-summary').style.display = 'block';
+        el('route-summary').innerHTML =
+          '<strong>' + data.stops.length + ' stops · ' + data.total_distance_km + ' km' +
+          (data.round_trip ? ' (including a ' + data.return_leg_km + ' km return leg)' : '') +
+          '</strong><br>' + data.solver + '.';
+
+        el('route-list').innerHTML = data.stops.map(function (s, i) {
+          return '<div class="route-stop' + (i === 0 ? ' start' : '') + '">' +
+                   '<div class="n">' + s.stop + '</div>' +
+                   '<div class="meta">' +
+                     '<div class="sid">' + s.sector_id + (i === 0 ? ' · start' : '') + '</div>' +
+                     '<div class="sub">' + fmt(s.observed_incidents) + ' recorded incidents</div>' +
+                   '</div>' +
+                   '<div class="km">' + s.cumulative_km.toFixed(1) + ' km</div>' +
+                 '</div>';
+        }).join('');
+      })
+      .catch(function (err) {
+        el('route-list').innerHTML = '<div class="notice error">' + err.message + '</div>';
+      })
+      .then(function () {
+        btn.disabled = false;
+        btn.textContent = 'Generate route';
+      });
+  });
+
+  // ----------------------------------------------------------------- boot
+  loadHealth();
+  loadOverview();
+  loadModelCard();
+})();
 </script>
 
 </body>

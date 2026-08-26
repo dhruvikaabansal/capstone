@@ -1,92 +1,109 @@
+/**
+ * Passport strategies: email/password and Google OAuth.
+ *
+ * The Google strategy is registered only when credentials are present, so a
+ * deployment without them starts cleanly instead of failing at sign-in time.
+ */
+
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const User = require('../models/User');
 
-// ==============================
-// Serialize / Deserialize
-// ==============================
-passport.serializeUser((user, done) => {
-  done(null, user.id);
-});
+passport.serializeUser((user, done) => done(null, user.id));
 
 passport.deserializeUser(async (id, done) => {
   try {
     const user = await User.findById(id);
-    done(null, user);
+    // A deleted account leaves a live session pointing at nothing.
+    return done(null, user || false);
   } catch (err) {
-    done(err, null);
+    return done(err);
   }
 });
 
-// ==============================
-// Local Strategy
-// ==============================
-passport.use(new LocalStrategy(
-  { usernameField: 'email' },
-  async (email, password, done) => {
+// ---------------------------------------------------------------------------
+// Email and password
+// ---------------------------------------------------------------------------
+passport.use(
+  new LocalStrategy({ usernameField: 'email' }, async (email, password, done) => {
     try {
-      const user = await User.findOne({ email: email.toLowerCase() });
+      const user = await User.findOne({ email: String(email).trim().toLowerCase() });
 
-      if (!user) {
-        return done(null, false, { message: 'No account with that email.' });
-      }
+      // Same message whether the address is unknown or the password is wrong,
+      // so the form cannot be used to discover which emails are registered.
+      const genericFailure = { message: 'Invalid email or password.' };
 
+      if (!user) return done(null, false, genericFailure);
       if (!user.password) {
-        return done(null, false, { message: 'Use Google login for this account.' });
+        return done(null, false, { message: 'This account signs in with Google.' });
       }
+      if (!(await user.comparePassword(password))) return done(null, false, genericFailure);
 
-      const isMatch = await user.comparePassword(password);
-
-      if (!isMatch) {
-        return done(null, false, { message: 'Incorrect password.' });
-      }
+      user.lastLoginAt = new Date();
+      await user.save();
 
       return done(null, user);
     } catch (err) {
       return done(err);
     }
-  }
-));
+  })
+);
 
-// ==============================
-// Google OAuth Strategy
-// ==============================
-passport.use(new GoogleStrategy(
-  {
-    clientID: process.env.GOOGLE_CLIENT_ID || 'missing_client_id',
-    clientSecret: process.env.GOOGLE_CLIENT_SECRET || 'missing_client_secret',
-    callbackURL: "/auth/google/callback", // ✅ FIXED
-  },
-  async (accessToken, refreshToken, profile, done) => {
-    try {
-      // 1. Check Google ID
-      let user = await User.findOne({ googleId: profile.id });
-      if (user) return done(null, user);
+// ---------------------------------------------------------------------------
+// Google OAuth
+// ---------------------------------------------------------------------------
+const { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET } = process.env;
 
-      // 2. Check email
-      user = await User.findOne({ email: profile.emails[0].value });
+if (GOOGLE_CLIENT_ID && GOOGLE_CLIENT_SECRET) {
+  passport.use(
+    new GoogleStrategy(
+      {
+        clientID: GOOGLE_CLIENT_ID,
+        clientSecret: GOOGLE_CLIENT_SECRET,
+        // A relative path is resolved against the incoming request, so the same
+        // build works on localhost and behind a domain.
+        callbackURL: process.env.GOOGLE_CALLBACK_URL || '/auth/google/callback',
+      },
+      async (accessToken, refreshToken, profile, done) => {
+        try {
+          const email = profile.emails && profile.emails[0] && profile.emails[0].value;
+          if (!email) {
+            return done(null, false, { message: 'Google did not return an email address.' });
+          }
 
-      if (user) {
-        user.googleId = profile.id;
-        user.avatar = profile.photos[0]?.value || '';
-        await user.save();
-        return done(null, user);
+          const avatar = (profile.photos && profile.photos[0] && profile.photos[0].value) || '';
+
+          let user = await User.findOne({ googleId: profile.id });
+
+          // Link the Google identity to an existing email/password account.
+          if (!user) user = await User.findOne({ email: email.toLowerCase() });
+
+          if (user) {
+            user.googleId = profile.id;
+            if (avatar) user.avatar = avatar;
+            user.lastLoginAt = new Date();
+            await user.save();
+            return done(null, user);
+          }
+
+          user = await User.create({
+            googleId: profile.id,
+            name: profile.displayName || email.split('@')[0],
+            email: email.toLowerCase(),
+            avatar,
+            lastLoginAt: new Date(),
+          });
+
+          return done(null, user);
+        } catch (err) {
+          return done(err);
+        }
       }
-
-      // 3. Create new user
-      user = await User.create({
-        googleId: profile.id,
-        name: profile.displayName,
-        email: profile.emails[0].value,
-        avatar: profile.photos[0]?.value || ''
-      });
-
-      return done(null, user);
-    } catch (err) {
-      return done(err);
-    }
-  }
-));
+    )
+  );
+} else {
+  console.warn('Google OAuth is not configured; only email and password sign-in is available.');
+}
 
 module.exports = passport;

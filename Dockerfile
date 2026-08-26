@@ -1,17 +1,21 @@
-FROM node:18-alpine
+FROM node:20-alpine
 
 WORKDIR /app
 
-# Copy package files first for better caching
+# Install dependencies first so this layer is cached across source changes.
 COPY package*.json ./
-RUN npm ci --only=production
+RUN npm ci --omit=dev && npm cache clean --force
 
-# Copy app source
 COPY . .
 
+# Drop root before running the app.
+RUN chown -R node:node /app
+USER node
+
+ENV NODE_ENV=production
 EXPOSE 3000
 
-HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
   CMD wget --quiet --tries=1 --spider http://localhost:3000/health || exit 1
 
 CMD ["node", "app.js"]

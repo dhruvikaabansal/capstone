@@ -1,5 +1,13 @@
 node_modules/
 .env
+.env.*
+!.env.example
 *.log
-.env.local
-.env.docker
+npm-debug.log*
+.DS_Store
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+coverage/

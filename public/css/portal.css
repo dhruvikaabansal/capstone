@@ -1,0 +1,155 @@
+/* Smart Policing Portal - shared styles */
+
+:root {
+  --navy: #0b2545;
+  --navy-light: #14395f;
+  --accent: #2f6fed;
+  --bg: #f4f6f9;
+  --surface: #ffffff;
+  --border: #dee2e6;
+  --text: #212529;
+  --muted: #6c757d;
+  --danger: #c0392b;
+  --warning: #d97706;
+  --success: #1a7f4b;
+  --radius: 8px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+}
+
+a { color: var(--accent); }
+
+/* --- Auth pages ---------------------------------------------------------- */
+.auth-body {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 88px 20px 40px;
+}
+
+.top-bar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 60px;
+  background: var(--navy);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 32px;
+  color: #fff;
+  font-weight: 700;
+  letter-spacing: 1px;
+  box-shadow: 0 2px 4px rgba(0,0,0,.1);
+  z-index: 10;
+}
+
+.auth-card {
+  display: flex;
+  width: min(920px, 100%);
+  background: var(--surface);
+  border-radius: var(--radius);
+  box-shadow: 0 4px 16px rgba(0,0,0,.1);
+  overflow: hidden;
+}
+
+.auth-left {
+  flex: 1.1;
+  background: linear-gradient(160deg, var(--navy) 0%, var(--navy-light) 100%);
+  color: #fff;
+  padding: 56px 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.auth-left .brand { font-size: 30px; font-weight: 800; line-height: 1.15; letter-spacing: .5px; }
+.auth-left .brand span { color: #8fb8ff; }
+.auth-left .tagline { margin-top: 18px; font-size: 14px; color: #c9dcff; }
+.auth-left .facts { margin-top: 28px; font-size: 13px; color: #a9c6f5; }
+.auth-left .facts li { list-style: none; margin-bottom: 6px; }
+.auth-left .facts li::before { content: "\2022  "; color: #8fb8ff; }
+
+.auth-right { flex: 1; padding: 56px 44px; }
+.auth-right h1 { font-size: 22px; margin-bottom: 6px; }
+.auth-right .subtitle { color: var(--muted); font-size: 14px; margin-bottom: 26px; }
+
+.form-group { margin-bottom: 16px; }
+.form-group label {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .6px;
+  color: var(--muted);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+}
+.form-group input {
+  width: 100%;
+  padding: 11px 12px;
+  border: 1px solid #ced4da;
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: inherit;
+}
+.form-group input:focus { outline: 2px solid var(--accent); outline-offset: -1px; border-color: var(--accent); }
+.form-group .hint { font-size: 12px; color: var(--muted); margin-top: 5px; }
+
+.btn {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 6px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: .5px;
+  cursor: pointer;
+  font-family: inherit;
+}
+.btn:hover { background: #2559c4; }
+.btn-secondary { background: #fff; color: var(--navy); border: 1px solid var(--border); }
+.btn-secondary:hover { background: #f1f3f5; }
+
+.divider {
+  display: flex; align-items: center; gap: 12px;
+  margin: 20px 0; color: var(--muted); font-size: 12px;
+}
+.divider::before, .divider::after { content: ""; flex: 1; height: 1px; background: var(--border); }
+
+.links { margin-top: 22px; font-size: 14px; color: var(--muted); text-align: center; }
+
+.alert {
+  padding: 11px 14px;
+  border-radius: 6px;
+  font-size: 14px;
+  margin-bottom: 18px;
+  border-left: 4px solid;
+}
+.alert-error { background: #fdecea; border-color: var(--danger); color: #7d241a; }
+.alert-success { background: #e8f5ee; border-color: var(--success); color: #14603a; }
+
+@media (max-width: 820px) {
+  .auth-card { flex-direction: column; }
+  .auth-left { padding: 36px 28px; }
+  .auth-right { padding: 32px 28px; }
+}
+
+/* --- Error page ---------------------------------------------------------- */
+.error-page {
+  min-height: 100vh;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 10px; text-align: center; padding: 24px;
+}
+.error-page .code { font-size: 64px; font-weight: 800; color: var(--navy); }
+.error-page p { color: var(--muted); }
+.error-page a { margin-top: 14px; }

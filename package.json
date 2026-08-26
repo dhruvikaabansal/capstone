@@ -1,21 +1,32 @@
 {
-  "name": "loginpage",
-  "version": "1.0.0",
-  "description": "Login/Signup page with MongoDB, Google OAuth, Docker & Jenkins CI/CD",
+  "name": "smart-policing-portal",
+  "version": "2.0.0",
+  "description": "Sector risk assessment and patrol planning portal, built on Chicago incident data with a Python prediction service.",
   "main": "app.js",
+  "type": "commonjs",
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
     "start": "node app.js",
     "dev": "node --watch app.js",
-    "test": "node --test test.js",
-    "docker:up": "docker-compose up -d --build",
-    "docker:down": "docker-compose down"
+    "test": "node --test \"tests/**/*.test.js\"",
+    "docker:up": "docker compose up -d --build",
+    "docker:down": "docker compose down",
+    "docker:logs": "docker compose logs -f"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "policing",
+    "crime-analytics",
+    "hotspot-prediction",
+    "express",
+    "fastapi",
+    "machine-learning"
+  ],
+  "author": "dhruvikaabansal",
   "license": "ISC",
-  "type": "commonjs",
   "dependencies": {
-    "axios": "^1.15.2",
+    "axios": "^1.20.0",
     "bcryptjs": "^3.0.3",
     "connect-mongo": "^6.0.0",
     "dotenv": "^17.3.1",
@@ -23,7 +34,7 @@
     "express": "^5.2.1",
     "express-flash": "^0.0.2",
     "express-session": "^1.19.0",
-    "mongoose": "^9.2.1",
+    "mongoose": "^9.9.4",
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
     "passport-local": "^1.0.0"
